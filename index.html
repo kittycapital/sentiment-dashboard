@@ -158,7 +158,7 @@
   }
 
   /* Panels */
-  .panel { display: none; padding: 20px 16px; }
+  .panel { display: none; padding: 20px 16px; max-width: 900px; margin-left: auto; margin-right: auto; }
   .panel.active { display: block; }
 
   /* CNN Fear & Greed Detail */
@@ -217,6 +217,9 @@
     border-radius: 12px;
     padding: 16px;
     margin-top: 16px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
   }
   .chart-box .chart-title {
     font-size: 14px;
@@ -396,6 +399,11 @@
   }
   .footer a { color: var(--cyan); text-decoration: none; }
 
+  /* PERIOD BUTTONS */
+  .period-btn{padding:4px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--text3);background:transparent;border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+  .period-btn:hover{color:var(--text2);background:rgba(255,255,255,0.03)}
+  .period-btn.active{color:var(--cyan);background:rgba(0,212,170,0.08);border-color:rgba(0,212,170,0.3)}
+
   /* SHARE BAR */
   .share-bar{display:flex;align-items:center;justify-content:center;padding:14px 16px;gap:6px;flex-wrap:wrap;margin-top:20px}
   .share-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:var(--surface);color:#999;white-space:nowrap}
@@ -452,7 +460,16 @@
 <div class="panel active" id="panel-cnn">
   <div class="fg-grid" id="fgGrid"></div>
   <div class="chart-box">
-    <div class="chart-title">📈 CNN Fear & Greed 추이 (최근 60일)</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+      <div class="chart-title" style="margin:0">📈 CNN Fear & Greed 추이</div>
+      <div style="display:flex;gap:4px">
+        <button class="period-btn" data-days="30" onclick="setHistoryPeriod(30,this)">1M</button>
+        <button class="period-btn" data-days="90" onclick="setHistoryPeriod(90,this)">3M</button>
+        <button class="period-btn active" data-days="180" onclick="setHistoryPeriod(180,this)">6M</button>
+        <button class="period-btn" data-days="365" onclick="setHistoryPeriod(365,this)">1Y</button>
+        <button class="period-btn" data-days="0" onclick="setHistoryPeriod(0,this)">ALL</button>
+      </div>
+    </div>
     <div class="chart-container">
       <canvas id="fgHistoryChart"></canvas>
     </div>
@@ -725,30 +742,49 @@ function renderCNN() {
   const grid = document.getElementById('fgGrid');
   const indicators = fg.indicators || {};
   grid.innerHTML = Object.entries(indicators).map(([key, ind]) => {
-    const color = getScoreColor(ind.score);
+    const sc = parseFloat(ind.score) || 0;
+    const color = getScoreColor(sc);
     return `
     <div class="fg-item">
       <div class="info">
         <div class="name">${ind.name_kr}</div>
         <div class="desc">${getRatingKr(ind.rating)}</div>
         <div class="bar-wrap">
-          <div class="bar-fill" style="width:${ind.score}%; background:${color}"></div>
+          <div class="bar-fill" style="width:${sc}%; background:${color}"></div>
         </div>
       </div>
-      <div class="score-badge mono" style="background:${color}22; color:${color}">${ind.score}</div>
+      <div class="score-badge mono" style="background:${color}22; color:${color}">${sc}</div>
     </div>`;
   }).join('');
 
-  // History chart
-  const history = fg.history || [];
+  // History chart — default 180 days
+  renderHistoryChart(180);
+}
+
+var currentHistoryDays = 180;
+function setHistoryPeriod(days, btn) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  currentHistoryDays = days;
+  renderHistoryChart(days);
+}
+
+function renderHistoryChart(days) {
+  const fg = DATA.cnn_fear_greed;
+  if (!fg) return;
+  let history = fg.history || [];
   if (history.length === 0) return;
+
+  // Filter by days (0 = ALL)
+  if (days > 0) {
+    history = history.slice(-days);
+  }
 
   const ctx = document.getElementById('fgHistoryChart').getContext('2d');
   if (historyChart) historyChart.destroy();
 
   const dates = history.map(h => h.date);
   const values = history.map(h => h.y);
-  const colors = values.map(v => getScoreColor(v));
 
   historyChart = new Chart(ctx, {
     type: 'line',
@@ -794,6 +830,7 @@ function renderCNN() {
       }
     }
   });
+  sendHeight();
 }
 
 // ── ApeWisdom ──
@@ -827,6 +864,7 @@ function renderApeWisdom(filter) {
       </td>
     </tr>`;
   }).join('');
+  sendHeight();
 }
 
 // ── LunarCrush ──
@@ -834,20 +872,31 @@ function renderLunarCrush() {
   const coins = DATA.lunarcrush || [];
   const container = document.getElementById('coinCards');
 
-  container.innerHTML = coins.map(c => {
+  // Filter out coins with errors or no data
+  const validCoins = coins.filter(c => !c.error && (c.sentiment_positive_pct > 0 || c.num_posts > 0));
+
+  if (validCoins.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:13px">LunarCrush 데이터를 불러오지 못했습니다.<br>API 서버 상태를 확인해 주세요.</div>';
+    return;
+  }
+
+  container.innerHTML = validCoins.map(c => {
+    const posPct = parseFloat(c.sentiment_positive_pct) || 0;
+    const negPct = parseFloat(c.sentiment_negative_pct) || 0;
+    const neuPct = parseFloat(c.sentiment_neutral_pct) || 0;
     const trendIcon = c.trend === 'up' ? '🟢' : c.trend === 'down' ? '🔴' : '🟡';
     return `
     <div class="coin-card">
       <div class="coin-name">${c.symbol} ${trendIcon}</div>
       <div style="margin:8px 0">
         <div style="display:flex;height:8px;border-radius:4px;overflow:hidden">
-          <div style="width:${c.sentiment_positive_pct}%;background:var(--green)"></div>
-          <div style="width:${c.sentiment_neutral_pct}%;background:var(--text3)"></div>
-          <div style="width:${c.sentiment_negative_pct}%;background:var(--red)"></div>
+          <div style="width:${posPct}%;background:var(--green)"></div>
+          <div style="width:${neuPct}%;background:var(--text3)"></div>
+          <div style="width:${negPct}%;background:var(--red)"></div>
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:4px">
-          <span style="color:var(--green);font-size:10px">${c.sentiment_positive_pct}%</span>
-          <span style="color:var(--red);font-size:10px">${c.sentiment_negative_pct}%</span>
+          <span style="color:var(--green);font-size:10px">${posPct}%</span>
+          <span style="color:var(--red);font-size:10px">${negPct}%</span>
         </div>
       </div>
       <div class="coin-stat">게시물 <span class="num">${formatNum(c.num_posts || 0)}</span></div>
@@ -856,24 +905,24 @@ function renderLunarCrush() {
   }).join('');
 
   // Social comparison chart
-  if (coins.length === 0) return;
+  if (validCoins.length === 0) return;
   const ctx = document.getElementById('socialChart').getContext('2d');
   if (socialChart) socialChart.destroy();
 
   socialChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: coins.map(c => c.symbol),
+      labels: validCoins.map(c => c.symbol),
       datasets: [
         {
           label: '긍정',
-          data: coins.map(c => c.sentiment_positive_pct),
+          data: validCoins.map(c => parseFloat(c.sentiment_positive_pct) || 0),
           backgroundColor: 'rgba(34,197,94,0.7)',
           borderRadius: 4,
         },
         {
           label: '부정',
-          data: coins.map(c => c.sentiment_negative_pct),
+          data: validCoins.map(c => parseFloat(c.sentiment_negative_pct) || 0),
           backgroundColor: 'rgba(239,68,68,0.7)',
           borderRadius: 4,
         }
@@ -899,12 +948,18 @@ function renderLunarCrush() {
       }
     }
   });
+  sendHeight();
 }
 
 // ── Finnhub ──
 function renderFinnhub() {
   const items = DATA.finnhub || [];
   const container = document.getElementById('newsBars');
+
+  if (!items || items.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:13px">Finnhub 뉴스 센티먼트 데이터가 없습니다.<br><span style="font-size:11px;color:var(--text3)">finnhub.io에서 무료 API 키를 발급받아<br>GitHub Secrets에 FINNHUB_API_KEY로 추가하세요.</span></div>';
+    return;
+  }
 
   container.innerHTML = items.map(item => {
     const bullColor = item.bullish_pct >= 55 ? 'var(--green)' : item.bullish_pct <= 45 ? 'var(--red)' : 'var(--yellow)';
