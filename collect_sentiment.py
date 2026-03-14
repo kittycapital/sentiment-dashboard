@@ -185,37 +185,62 @@ def fetch_crypto_sentiment():
 
 
 # ──────────────────────────────────────────────
-# 4. Finnhub (옵션 — API 키 있을 때만)
+# 4. Finnhub 뉴스 (무료: company-news + general-news)
 # ──────────────────────────────────────────────
 def fetch_finnhub_sentiment():
-    print("[4/4] Finnhub 뉴스 센티먼트 수집 중...")
+    print("[4/4] Finnhub 뉴스 수집 중...")
     api_key = os.environ.get("FINNHUB_API_KEY", "")
     if not api_key:
-        print("   ⚠️ FINNHUB_API_KEY 없음 — 스킵 (finnhub.io에서 무료 키 발급)")
+        print("   ⚠️ FINNHUB_API_KEY 없음 — 스킵")
         return None
+
+    from datetime import timedelta
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
 
     symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "META", "SPY"]
     results = []
+
     for symbol in symbols:
         try:
-            resp = requests.get("https://finnhub.io/api/v1/news-sentiment",
-                                params={"symbol": symbol, "token": api_key}, timeout=10)
+            resp = requests.get("https://finnhub.io/api/v1/company-news",
+                                params={"symbol": symbol, "from": week_ago, "to": today, "token": api_key},
+                                timeout=10)
             resp.raise_for_status()
-            data = resp.json()
-            sentiment = data.get("sentiment", {})
-            buzz = data.get("buzz", {})
+            articles = resp.json()
+            count = len(articles) if isinstance(articles, list) else 0
+
+            # 간단한 키워드 기반 센티먼트
+            bullish_kw = ["surge", "rally", "beat", "upgrade", "record", "gain", "bull", "soar", "jump", "boost", "profit", "strong", "growth", "buy"]
+            bearish_kw = ["fall", "drop", "crash", "miss", "downgrade", "loss", "bear", "plunge", "decline", "cut", "weak", "sell", "risk", "fear"]
+
+            bull_count = 0
+            bear_count = 0
+            if isinstance(articles, list):
+                for a in articles[:50]:
+                    headline = (a.get("headline", "") + " " + a.get("summary", "")).lower()
+                    bull_count += sum(1 for kw in bullish_kw if kw in headline)
+                    bear_count += sum(1 for kw in bearish_kw if kw in headline)
+
+            total_kw = bull_count + bear_count
+            bull_pct = round(bull_count / total_kw * 100, 1) if total_kw > 0 else 50
+            bear_pct = round(bear_count / total_kw * 100, 1) if total_kw > 0 else 50
+
             results.append({
                 "symbol": symbol,
-                "bullish_pct": round(safe_float(sentiment.get("bullishPercent")) * 100, 1),
-                "bearish_pct": round(safe_float(sentiment.get("bearishPercent")) * 100, 1),
-                "articles_this_week": safe_int(buzz.get("articlesInLastWeek")),
-                "buzz_score": round(safe_float(buzz.get("buzz")), 2),
+                "articles_this_week": count,
+                "bullish_pct": bull_pct,
+                "bearish_pct": bear_pct,
+                "buzz_score": round(count / 30, 2),  # 30 articles/week = 1x normal
             })
-            time.sleep(0.5)
+            time.sleep(0.3)
+
         except Exception as e:
             print(f"   ⚠️ {symbol}: {e}")
+
     if results:
-        print(f"   ✅ Finnhub: {len(results)}개 종목")
+        avg_bull = sum(r["bullish_pct"] for r in results) / len(results)
+        print(f"   ✅ Finnhub: {len(results)}개 종목, 평균 강세 {avg_bull:.1f}%")
     return results
 
 
