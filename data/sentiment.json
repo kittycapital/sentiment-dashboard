@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T08:11:47Z",
+  "updated_at": "2026-03-14T08:19:39Z",
   "composite": {
     "score": 90.0,
     "rating": "극도의 탐욕",
@@ -17,35 +17,35 @@
         "rank": 1,
         "ticker": "SPY",
         "name": "SPDR S&amp;P 500 ETF Trust",
-        "mentions": 524,
-        "upvotes": 3180,
+        "mentions": 520,
+        "upvotes": 3160,
         "rank_24h_ago": 1,
-        "mentions_24h_ago": 616
+        "mentions_24h_ago": 620
       },
       {
         "rank": 2,
         "ticker": "USO",
         "name": "United States Commodity Funds LLC - United States Oil Fund",
-        "mentions": 197,
-        "upvotes": 1403,
+        "mentions": 196,
+        "upvotes": 1400,
         "rank_24h_ago": 2,
-        "mentions_24h_ago": 183
+        "mentions_24h_ago": 182
       },
       {
         "rank": 3,
         "ticker": "MSFT",
         "name": "Microsoft",
         "mentions": 101,
-        "upvotes": 488,
+        "upvotes": 491,
         "rank_24h_ago": 14,
-        "mentions_24h_ago": 37
+        "mentions_24h_ago": 36
       },
       {
         "rank": 4,
         "ticker": "MU",
         "name": "Micron Technology",
         "mentions": 100,
-        "upvotes": 412,
+        "upvotes": 411,
         "rank_24h_ago": 7,
         "mentions_24h_ago": 60
       },
@@ -54,7 +54,7 @@
         "ticker": "QQQ",
         "name": "Invesco QQQ ETF",
         "mentions": 93,
-        "upvotes": 222,
+        "upvotes": 221,
         "rank_24h_ago": 5,
         "mentions_24h_ago": 86
       },
@@ -63,7 +63,7 @@
         "ticker": "NVDA",
         "name": "NVIDIA",
         "mentions": 86,
-        "upvotes": 255,
+        "upvotes": 257,
         "rank_24h_ago": 4,
         "mentions_24h_ago": 84
       },
@@ -81,9 +81,9 @@
         "ticker": "DTE",
         "name": "DTE Energy",
         "mentions": 69,
-        "upvotes": 1171,
+        "upvotes": 1168,
         "rank_24h_ago": 6,
-        "mentions_24h_ago": 67
+        "mentions_24h_ago": 68
       },
       {
         "rank": 9,
@@ -144,7 +144,7 @@
         "ticker": "SNDK",
         "name": "Sandisk",
         "mentions": 38,
-        "upvotes": 82,
+        "upvotes": 84,
         "rank_24h_ago": 72,
         "mentions_24h_ago": 9
       },
@@ -162,7 +162,7 @@
         "ticker": "AM",
         "name": "Antero Midstream",
         "mentions": 36,
-        "upvotes": 141,
+        "upvotes": 139,
         "rank_24h_ago": 10,
         "mentions_24h_ago": 45
       },
@@ -180,7 +180,7 @@
         "ticker": "WTI",
         "name": "W&amp;T Offshore",
         "mentions": 30,
-        "upvotes": 120,
+        "upvotes": 119,
         "rank_24h_ago": 16,
         "mentions_24h_ago": 35
       },
