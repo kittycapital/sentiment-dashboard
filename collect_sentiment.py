@@ -117,7 +117,7 @@ def fetch_apewisdom():
             for item in data.get("results", [])[:20]:
                 tickers.append({
                     "rank": safe_int(item.get("rank")),
-                    "ticker": item.get("ticker", ""),
+                    "ticker": item.get("ticker", "").replace(".X", ""),
                     "name": item.get("name", ""),
                     "mentions": safe_int(item.get("mentions")),
                     "upvotes": safe_int(item.get("upvotes")),
