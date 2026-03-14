@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HerdVibe 종합 센티먼트 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js" crossorigin="anonymous" async></script>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111113;
+    --surface2: #18181b;
+    --border: #27272a;
+    --text: #fafafa;
+    --text2: #a1a1aa;
+    --text3: #71717a;
+    --cyan: #00d4aa;
+    --cyan-dim: rgba(0,212,170,0.15);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.15);
+    --orange: #f97316;
+    --orange-dim: rgba(249,115,22,0.15);
+    --yellow: #eab308;
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.15);
+    --blue: #3b82f6;
+    --purple: #a855f7;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Header */
+  .header {
+    padding: 32px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0,212,170,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  .header h1 span { color: var(--cyan); }
+  .header .subtitle {
+    color: var(--text3);
+    font-size: 13px;
+    margin-top: 6px;
+    position: relative;
+  }
+  .updated {
+    color: var(--text3);
+    font-size: 11px;
+    margin-top: 8px;
+    position: relative;
+  }
+  .updated .mono { color: var(--cyan); }
+
+  /* Main Gauge */
+  .gauge-section {
+    padding: 20px 24px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .gauge-wrap {
+    position: relative;
+    width: 260px;
+    height: 150px;
+  }
+  .gauge-canvas { width: 260px; height: 150px; }
+  .gauge-value {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+  .gauge-value .score {
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .gauge-value .rating {
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .gauge-components {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .gauge-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 90px;
+  }
+  .gauge-chip .label { color: var(--text3); font-size: 10px; }
+  .gauge-chip .val { font-weight: 700; font-size: 16px; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    padding: 0 16px;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: center;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text3);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text2); }
+  .tab.active {
+    color: var(--cyan);
+    border-bottom-color: var(--cyan);
+  }
+
+  /* Panels */
+  .panel { display: none; padding: 20px 16px; }
+  .panel.active { display: block; }
+
+  /* CNN Fear & Greed Detail */
+  .fg-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .fg-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .fg-item .info { flex: 1; }
+  .fg-item .name {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .fg-item .desc {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+  .fg-item .score-badge {
+    min-width: 52px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .fg-item .bar-wrap {
+    width: 100%;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .fg-item .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  /* Chart container */
+  .chart-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+  .chart-box .chart-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .chart-container {
+    position: relative;
+    height: 220px;
+  }
+
+  /* ApeWisdom Ticker Table */
+  .ticker-header {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .ticker-filter {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    transition: all 0.2s;
+  }
+  .ticker-filter.active {
+    background: var(--cyan-dim);
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  .ticker-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 4px;
+  }
+  .ticker-table th {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: 500;
+  }
+  .ticker-table th:last-child,
+  .ticker-table td:last-child { text-align: right; }
+  .ticker-table td {
+    background: var(--surface);
+    padding: 10px;
+    font-size: 13px;
+  }
+  .ticker-table tr td:first-child { border-radius: 8px 0 0 8px; }
+  .ticker-table tr td:last-child { border-radius: 0 8px 8px 0; }
+  .rank-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--surface2);
+    color: var(--text2);
+  }
+  .rank-badge.top3 { background: var(--cyan-dim); color: var(--cyan); }
+  .ticker-symbol {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .ticker-name {
+    color: var(--text3);
+    font-size: 11px;
+  }
+  .trend-up { color: var(--green); }
+  .trend-down { color: var(--red); }
+  .trend-flat { color: var(--text3); }
+  .mentions-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    min-width: 60px;
+    overflow: hidden;
+  }
+  .mentions-fill {
+    height: 100%;
+    background: var(--cyan);
+    border-radius: 3px;
+  }
+
+  /* LunarCrush */
+  .coin-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .coin-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .coin-card .coin-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .coin-card .coin-symbol { color: var(--text3); font-size: 11px; }
+  .sentiment-donut {
+    width: 80px;
+    height: 80px;
+    margin: 10px auto;
+  }
+  .coin-stat {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+  .coin-stat .num { color: var(--text); font-weight: 600; }
+
+  /* Finnhub */
+  .news-bars { display: flex; flex-direction: column; gap: 8px; }
+  .news-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .news-item .symbol-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .news-item .sym {
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .news-item .buzz {
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .sentiment-bar {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    display: flex;
+    overflow: hidden;
+  }
+  .sentiment-bar .bull {
+    background: var(--green);
+    transition: width 0.8s ease;
+  }
+  .sentiment-bar .bear {
+    background: var(--red);
+    transition: width 0.8s ease;
+  }
+  .sentiment-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 10px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 16px;
+    color: var(--text3);
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  .footer a { color: var(--cyan); text-decoration: none; }
+
+  /* SHARE BAR */
+  .share-bar{display:flex;align-items:center;justify-content:center;padding:14px 16px;gap:6px;flex-wrap:wrap;margin-top:20px}
+  .share-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:var(--surface);color:#999;white-space:nowrap}
+  .share-btn:hover{transform:translateY(-1px);box-shadow:0 1px 3px rgba(0,0,0,.5);color:var(--text)}
+  .share-btn svg{flex-shrink:0}
+  .share-btn--x:hover{border-color:#fff;color:#fff;background:#111}
+  .share-btn--kakao:hover{border-color:#FEE500;color:#191919;background:#FEE500}
+  .share-btn--tg:hover{border-color:#26A5E4;color:#fff;background:rgba(38,165,228,.15)}
+  .share-btn--copy:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,170,0.12)}
+  .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px}
+  .toast{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 18px;font-size:12px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.7);animation:toastIn .3s ease;border-left:3px solid #22c55e}
+  @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  @media (max-width:639px) {
+    .share-btn span.label-text{display:none}
+    .share-btn{padding:8px 10px}
+  }
+
+  @media (min-width:640px) {
+    .fg-grid { grid-template-columns: 1fr 1fr; }
+    .coin-cards { grid-template-columns: repeat(5, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 <span>HerdVibe</span> 종합 센티먼트</h1>
+  <div class="subtitle">무료 데이터만으로 시장 심리를 한눈에</div>
+  <div class="updated" id="updatedAt">마지막 업데이트: <span class="mono">--</span></div>
+</div>
+
+<!-- Main Gauge -->
+<div class="gauge-section">
+  <div class="gauge-wrap">
+    <canvas id="gaugeChart" class="gauge-canvas"></canvas>
+    <div class="gauge-value">
+      <div class="score mono" id="compositeScore">--</div>
+      <div class="rating" id="compositeRating">로딩 중</div>
+    </div>
+  </div>
+  <div class="gauge-components" id="gaugeComponents"></div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" data-tab="cnn">🏛️ 주식 F&G</div>
+  <div class="tab" data-tab="apewisdom">🔥 커뮤니티</div>
+  <div class="tab" data-tab="lunarcrush">💬 크립토 소셜</div>
+  <div class="tab" data-tab="finnhub">📰 뉴스 센티먼트</div>
+</div>
+
+<!-- Panel: CNN Fear & Greed -->
+<div class="panel active" id="panel-cnn">
+  <div class="fg-grid" id="fgGrid"></div>
+  <div class="chart-box">
+    <div class="chart-title">📈 CNN Fear & Greed 추이 (최근 60일)</div>
+    <div class="chart-container">
+      <canvas id="fgHistoryChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Panel: ApeWisdom -->
+<div class="panel" id="panel-apewisdom">
+  <div class="ticker-header">
+    <div class="ticker-filter active" data-filter="all-stocks">📈 주식</div>
+    <div class="ticker-filter" data-filter="all-crypto">🪙 크립토</div>
+  </div>
+  <table class="ticker-table" id="tickerTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>종목</th>
+        <th>언급</th>
+        <th>24h 변화</th>
+      </tr>
+    </thead>
+    <tbody id="tickerBody"></tbody>
+  </table>
+</div>
+
+<!-- Panel: LunarCrush -->
+<div class="panel" id="panel-lunarcrush">
+  <div class="coin-cards" id="coinCards"></div>
+  <div class="chart-box">
+    <div class="chart-title">💬 소셜 센티먼트 비교</div>
+    <div class="chart-container">
+      <canvas id="socialChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Panel: Finnhub -->
+<div class="panel" id="panel-finnhub">
+  <div class="news-bars" id="newsBars"></div>
+</div>
+
+<!-- SHARE BAR -->
+<div class="share-bar">
+  <button class="share-btn share-btn--x" onclick="doShare('twitter')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="label-text">트위터</span></button>
+  <button class="share-btn share-btn--kakao" onclick="doShare('kakao')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.477 3 2 6.463 2 10.691c0 2.724 1.8 5.112 4.508 6.458l-1.148 4.265a.5.5 0 0 0 .764.533l4.94-3.26c.304.02.612.03.936.03 5.523 0 10-3.462 10-7.735C22 6.463 17.523 3 12 3z"/></svg><span class="label-text">카카오톡</span></button>
+  <button class="share-btn share-btn--tg" onclick="doShare('telegram')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg><span class="label-text">텔레그램</span></button>
+  <button class="share-btn" onclick="doShare('instagram',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg><span class="label-text">인스타</span></button>
+  <button class="share-btn share-btn--copy" onclick="doShare('link',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="label-text">링크 복사</span></button>
+</div>
+
+<div class="footer">
+  Data: CNN · ApeWisdom · LunarCrush · Finnhub (모두 무료)<br>
+  Built by <a href="https://herdvibe.com" target="_blank">HerdVibe</a>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// SHARE & TOAST (HerdVibe 표준)
+// ═══════════════════════════════════════════════
+var SHARE_URL = 'https://herdvibe.com/129';
+function ensureKakao(){try{if(typeof Kakao!=='undefined'&&!Kakao.isInitialized())Kakao.init('a43ed7b39fac35458f4f9df925a279b5');return typeof Kakao!=='undefined'&&Kakao.isInitialized();}catch(e){return false;}}
+ensureKakao();
+function kakaoShare(title,desc){if(!ensureKakao()){copyToClipboard(SHARE_URL);toast('링크 복사완료! 카카오톡에 붙여넣기 하세요');return;}try{Kakao.Share.sendDefault({objectType:'feed',content:{title:title||'종합 센티먼트 대시보드',description:desc||'CNN F&G, Reddit, LunarCrush, Finnhub 무료 데이터 종합 분석',imageUrl:'https://raw.githubusercontent.com/kittycapital/kittycapital.github.io/main/assets/herdvibe-og.png',link:{mobileWebUrl:SHARE_URL,webUrl:SHARE_URL}},buttons:[{title:'대시보드 보기',link:{mobileWebUrl:SHARE_URL,webUrl:SHARE_URL}}]});}catch(e){copyToClipboard(SHARE_URL);toast('링크 복사완료! 카카오톡에 붙여넣기 하세요');}}
+function copyToClipboard(text){try{window.parent.postMessage({type:'clipboard',text:text},'*');}catch(e){}}
+function flashCopied(btn){if(!btn)return;var orig=btn.innerHTML;btn.style.background='#22c55e';btn.style.color='#fff';btn.style.borderColor='#22c55e';var hasLabel=btn.querySelector('.label-text');btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg>'+(hasLabel?'<span class="label-text" style="color:#fff">복사됨!</span>':'');setTimeout(function(){btn.style.background='';btn.style.color='';btn.style.borderColor='';btn.innerHTML=orig;},2000);}
+function doShare(p,btn){var u=SHARE_URL;var t=encodeURIComponent('종합 센티먼트 대시보드 | herdvibe.com');var eu=encodeURIComponent(u);switch(p){case'twitter':window.open('https://twitter.com/intent/tweet?text='+t+'&url='+eu,'_blank');break;case'telegram':window.open('https://t.me/share/url?url='+eu+'&text='+t,'_blank');break;case'kakao':kakaoShare();break;case'instagram':copyToClipboard(u);flashCopied(btn);toast('링크 복사완료! 인스타그램에 붙여넣기 하세요');break;case'link':copyToClipboard(u);flashCopied(btn);toast('링크가 복사되었습니다 ✓');break;}}
+function toast(msg){var c=document.querySelector('.toast-wrap');if(!c){c=document.createElement('div');c.className='toast-wrap';document.body.appendChild(c);}var t=document.createElement('div');t.className='toast';t.textContent=msg;c.appendChild(t);setTimeout(function(){t.style.opacity='0';t.style.transform='translateY(12px)';t.style.transition='.3s';setTimeout(function(){t.remove();},300);},3000);}
+
+// ═══════════════════════════════════════════════
+// 샘플 데이터 (실제 운영 시 sentiment.json으로 대체)
+// ═══════════════════════════════════════════════
+const SAMPLE_DATA = {
+  updated_at: new Date().toISOString(),
+  composite: {
+    score: 42.3,
+    rating: "공포",
+    components: {
+      cnn_fear_greed: 38,
+      lunarcrush_social: 51.2,
+      apewisdom_trend: 40,
+      finnhub_news: 48.5
+    }
+  },
+  cnn_fear_greed: {
+    score: 38,
+    rating: "Fear",
+    previous_close: 41,
+    week_ago: 54,
+    month_ago: 35,
+    year_ago: 51,
+    indicators: {
+      stock_price_momentum: { score: 35.2, rating: "Fear", name_kr: "주가 모멘텀" },
+      stock_price_strength: { score: 18.5, rating: "Extreme Fear", name_kr: "주가 강도" },
+      stock_price_breadth: { score: 12.8, rating: "Extreme Fear", name_kr: "주가 폭" },
+      put_call_options: { score: 42.1, rating: "Fear", name_kr: "풋/콜 옵션" },
+      market_volatility_vix: { score: 55.3, rating: "Neutral", name_kr: "시장 변동성(VIX)" },
+      safe_haven_demand: { score: 22.4, rating: "Extreme Fear", name_kr: "안전자산 수요" },
+      junk_bond_demand: { score: 68.7, rating: "Greed", name_kr: "정크본드 수요" }
+    },
+    history: (() => {
+      const h = [];
+      const base = Date.now();
+      for (let i = 59; i >= 0; i--) {
+        const d = new Date(base - i * 86400000);
+        const v = 35 + Math.sin(i * 0.15) * 20 + (Math.random() - 0.5) * 10;
+        h.push({ date: d.toISOString().slice(0, 10), y: Math.round(Math.max(5, Math.min(95, v)) * 10) / 10 });
+      }
+      return h;
+    })()
+  },
+  apewisdom: {
+    "all-stocks": [
+      { rank: 1, ticker: "NVDA", name: "NVIDIA Corp", mentions: 1842, upvotes: 12453, rank_24h_ago: 1, mentions_24h_ago: 1650 },
+      { rank: 2, ticker: "TSLA", name: "Tesla Inc", mentions: 1523, upvotes: 9872, rank_24h_ago: 3, mentions_24h_ago: 1120 },
+      { rank: 3, ticker: "AAPL", name: "Apple Inc", mentions: 987, upvotes: 6543, rank_24h_ago: 2, mentions_24h_ago: 1050 },
+      { rank: 4, ticker: "PLTR", name: "Palantir Technologies", mentions: 876, upvotes: 5432, rank_24h_ago: 5, mentions_24h_ago: 650 },
+      { rank: 5, ticker: "AMD", name: "Advanced Micro Devices", mentions: 754, upvotes: 4321, rank_24h_ago: 4, mentions_24h_ago: 780 },
+      { rank: 6, ticker: "SPY", name: "SPDR S&P 500 ETF", mentions: 698, upvotes: 3876, rank_24h_ago: 6, mentions_24h_ago: 702 },
+      { rank: 7, ticker: "MSFT", name: "Microsoft Corp", mentions: 543, upvotes: 3210, rank_24h_ago: 8, mentions_24h_ago: 410 },
+      { rank: 8, ticker: "AMZN", name: "Amazon.com Inc", mentions: 487, upvotes: 2987, rank_24h_ago: 7, mentions_24h_ago: 502 },
+      { rank: 9, ticker: "GME", name: "GameStop Corp", mentions: 432, upvotes: 2654, rank_24h_ago: 12, mentions_24h_ago: 234 },
+      { rank: 10, ticker: "META", name: "Meta Platforms Inc", mentions: 398, upvotes: 2432, rank_24h_ago: 9, mentions_24h_ago: 401 }
+    ],
+    "all-crypto": [
+      { rank: 1, ticker: "BTC", name: "Bitcoin", mentions: 3241, upvotes: 18765, rank_24h_ago: 1, mentions_24h_ago: 3100 },
+      { rank: 2, ticker: "ETH", name: "Ethereum", mentions: 2156, upvotes: 12340, rank_24h_ago: 2, mentions_24h_ago: 2050 },
+      { rank: 3, ticker: "SOL", name: "Solana", mentions: 1432, upvotes: 8760, rank_24h_ago: 4, mentions_24h_ago: 980 },
+      { rank: 4, ticker: "XRP", name: "Ripple", mentions: 987, upvotes: 5430, rank_24h_ago: 3, mentions_24h_ago: 1020 },
+      { rank: 5, ticker: "DOGE", name: "Dogecoin", mentions: 876, upvotes: 4320, rank_24h_ago: 6, mentions_24h_ago: 654 },
+      { rank: 6, ticker: "ADA", name: "Cardano", mentions: 654, upvotes: 3210, rank_24h_ago: 5, mentions_24h_ago: 670 },
+      { rank: 7, ticker: "AVAX", name: "Avalanche", mentions: 432, upvotes: 2340, rank_24h_ago: 9, mentions_24h_ago: 287 },
+      { rank: 8, ticker: "LINK", name: "Chainlink", mentions: 398, upvotes: 2100, rank_24h_ago: 7, mentions_24h_ago: 410 },
+      { rank: 9, ticker: "DOT", name: "Polkadot", mentions: 321, upvotes: 1870, rank_24h_ago: 10, mentions_24h_ago: 198 },
+      { rank: 10, ticker: "MATIC", name: "Polygon", mentions: 287, upvotes: 1650, rank_24h_ago: 8, mentions_24h_ago: 301 }
+    ]
+  },
+  lunarcrush: [
+    { coin: "bitcoin", symbol: "BTC", sentiment_positive_pct: 42.1, sentiment_negative_pct: 18.3, sentiment_neutral_pct: 39.6, interactions_24h: 61019860, num_contributors: 245000, num_posts: 202878, trend: "up" },
+    { coin: "ethereum", symbol: "ETH", sentiment_positive_pct: 38.5, sentiment_negative_pct: 21.2, sentiment_neutral_pct: 40.3, interactions_24h: 18500000, num_contributors: 132000, num_posts: 98000, trend: "flat" },
+    { coin: "solana", symbol: "SOL", sentiment_positive_pct: 45.2, sentiment_negative_pct: 15.8, sentiment_neutral_pct: 39.0, interactions_24h: 9200000, num_contributors: 87000, num_posts: 54000, trend: "up" },
+    { coin: "xrp", symbol: "XRP", sentiment_positive_pct: 35.8, sentiment_negative_pct: 24.1, sentiment_neutral_pct: 40.1, interactions_24h: 7800000, num_contributors: 65000, num_posts: 42000, trend: "down" },
+    { coin: "dogecoin", symbol: "DOGE", sentiment_positive_pct: 48.3, sentiment_negative_pct: 12.5, sentiment_neutral_pct: 39.2, interactions_24h: 10900000, num_contributors: 95000, num_posts: 62000, trend: "up" }
+  ],
+  finnhub: [
+    { symbol: "AAPL", bullish_pct: 58.2, bearish_pct: 41.8, buzz_score: 1.32, articles_this_week: 245 },
+    { symbol: "MSFT", bullish_pct: 62.1, bearish_pct: 37.9, buzz_score: 1.18, articles_this_week: 198 },
+    { symbol: "GOOGL", bullish_pct: 55.4, bearish_pct: 44.6, buzz_score: 1.05, articles_this_week: 176 },
+    { symbol: "AMZN", bullish_pct: 51.3, bearish_pct: 48.7, buzz_score: 0.95, articles_this_week: 165 },
+    { symbol: "TSLA", bullish_pct: 44.8, bearish_pct: 55.2, buzz_score: 1.87, articles_this_week: 342 },
+    { symbol: "NVDA", bullish_pct: 67.3, bearish_pct: 32.7, buzz_score: 2.15, articles_this_week: 412 },
+    { symbol: "META", bullish_pct: 53.9, bearish_pct: 46.1, buzz_score: 1.22, articles_this_week: 187 },
+    { symbol: "SPY", bullish_pct: 48.1, bearish_pct: 51.9, buzz_score: 1.45, articles_this_week: 298 }
+  ]
+};
+
+// ═══════════════════════════════════════════════
+// 데이터 로드
+// ═══════════════════════════════════════════════
+let DATA = SAMPLE_DATA;
+
+async function loadData() {
+  try {
+    const resp = await fetch('data/sentiment.json');
+    if (resp.ok) {
+      const json = await resp.json();
+      if (json.cnn_fear_greed) DATA = json;
+    }
+  } catch (e) { /* 샘플 데이터 사용 */ }
+  render();
+}
+
+// ═══════════════════════════════════════════════
+// 유틸리티
+// ═══════════════════════════════════════════════
+function getScoreColor(score) {
+  if (score >= 75) return 'var(--green)';
+  if (score >= 55) return 'var(--cyan)';
+  if (score >= 45) return 'var(--yellow)';
+  if (score >= 25) return 'var(--orange)';
+  return 'var(--red)';
+}
+
+function getRatingKr(rating) {
+  const map = {
+    'Extreme Fear': '극도의 공포', 'Fear': '공포',
+    'Neutral': '중립', 'Greed': '탐욕', 'Extreme Greed': '극도의 탐욕'
+  };
+  return map[rating] || rating;
+}
+
+function formatNum(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toString();
+}
+
+// ═══════════════════════════════════════════════
+// 메인 렌더
+// ═══════════════════════════════════════════════
+let gaugeChart, historyChart, socialChart;
+
+function render() {
+  // Updated time
+  const ut = DATA.updated_at ? new Date(DATA.updated_at) : new Date();
+  document.getElementById('updatedAt').innerHTML =
+    `마지막 업데이트: <span class="mono">${ut.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</span>`;
+
+  renderGauge();
+  renderCNN();
+  renderApeWisdom('all-stocks');
+  renderLunarCrush();
+  renderFinnhub();
+}
+
+// ── Gauge ──
+function renderGauge() {
+  const c = DATA.composite;
+  const score = c.score;
+  const color = getScoreColor(score);
+
+  document.getElementById('compositeScore').textContent = score;
+  document.getElementById('compositeScore').style.color = color;
+  document.getElementById('compositeRating').textContent = c.rating;
+  document.getElementById('compositeRating').style.color = color;
+
+  // Components chips
+  const compEl = document.getElementById('gaugeComponents');
+  const labels = {
+    cnn_fear_greed: '주식 F&G',
+    lunarcrush_social: '크립토 소셜',
+    apewisdom_trend: '커뮤니티',
+    finnhub_news: '뉴스'
+  };
+  compEl.innerHTML = Object.entries(c.components || {}).map(([k, v]) => `
+    <div class="gauge-chip">
+      <span class="label">${labels[k] || k}</span>
+      <span class="val mono" style="color:${getScoreColor(v)}">${v}</span>
+    </div>
+  `).join('');
+
+  // Semicircle gauge
+  const ctx = document.getElementById('gaugeChart').getContext('2d');
+  if (gaugeChart) gaugeChart.destroy();
+
+  gaugeChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [score, 100 - score],
+        backgroundColor: [color, 'rgba(255,255,255,0.05)'],
+        borderWidth: 0,
+        circumference: 180,
+        rotation: 270,
+      }]
+    },
+    options: {
+      responsive: false,
+      cutout: '78%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      animation: { animateRotate: true, duration: 1200 }
+    }
+  });
+}
+
+// ── CNN Fear & Greed ──
+function renderCNN() {
+  const fg = DATA.cnn_fear_greed;
+  if (!fg) return;
+
+  const grid = document.getElementById('fgGrid');
+  const indicators = fg.indicators || {};
+  grid.innerHTML = Object.entries(indicators).map(([key, ind]) => {
+    const color = getScoreColor(ind.score);
+    return `
+    <div class="fg-item">
+      <div class="info">
+        <div class="name">${ind.name_kr}</div>
+        <div class="desc">${getRatingKr(ind.rating)}</div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:${ind.score}%; background:${color}"></div>
+        </div>
+      </div>
+      <div class="score-badge mono" style="background:${color}22; color:${color}">${ind.score}</div>
+    </div>`;
+  }).join('');
+
+  // History chart
+  const history = fg.history || [];
+  if (history.length === 0) return;
+
+  const ctx = document.getElementById('fgHistoryChart').getContext('2d');
+  if (historyChart) historyChart.destroy();
+
+  const dates = history.map(h => h.date);
+  const values = history.map(h => h.y);
+  const colors = values.map(v => getScoreColor(v));
+
+  historyChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        data: values,
+        borderColor: '#00d4aa',
+        backgroundColor: 'rgba(0,212,170,0.08)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHitRadius: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#18181b',
+          borderColor: '#27272a',
+          borderWidth: 1,
+          titleFont: { family: 'JetBrains Mono', size: 11 },
+          bodyFont: { family: 'Noto Sans KR', size: 12 },
+          callbacks: {
+            label: c => `${c.parsed.y} (${c.parsed.y >= 75 ? '탐욕' : c.parsed.y >= 45 ? '중립' : '공포'})`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#71717a', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 8 }
+        },
+        y: {
+          min: 0, max: 100,
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#71717a', font: { size: 10, family: 'JetBrains Mono' } }
+        }
+      }
+    }
+  });
+}
+
+// ── ApeWisdom ──
+function renderApeWisdom(filter) {
+  const tickers = (DATA.apewisdom || {})[filter] || [];
+  const maxMentions = Math.max(...tickers.map(t => t.mentions), 1);
+  const tbody = document.getElementById('tickerBody');
+
+  tbody.innerHTML = tickers.slice(0, 15).map(t => {
+    const change = t.mentions - (t.mentions_24h_ago || 0);
+    const changePct = t.mentions_24h_ago ? ((change / t.mentions_24h_ago) * 100).toFixed(0) : '0';
+    const trendClass = change > 0 ? 'trend-up' : change < 0 ? 'trend-down' : 'trend-flat';
+    const trendIcon = change > 0 ? '▲' : change < 0 ? '▼' : '—';
+    const rankChange = (t.rank_24h_ago || t.rank) - t.rank;
+    const rankIcon = rankChange > 0 ? `<span class="trend-up">↑${rankChange}</span>` :
+                     rankChange < 0 ? `<span class="trend-down">↓${Math.abs(rankChange)}</span>` :
+                     '<span class="trend-flat">—</span>';
+
+    return `<tr>
+      <td><span class="rank-badge ${t.rank <= 3 ? 'top3' : ''}">${t.rank}</span></td>
+      <td>
+        <span class="ticker-symbol">${t.ticker}</span> ${rankIcon}<br>
+        <span class="ticker-name">${t.name}</span>
+      </td>
+      <td>
+        <span class="mono" style="font-size:13px">${formatNum(t.mentions)}</span>
+        <div class="mentions-bar"><div class="mentions-fill" style="width:${(t.mentions / maxMentions * 100).toFixed(0)}%"></div></div>
+      </td>
+      <td class="${trendClass}" style="font-size:12px">
+        <span class="mono">${trendIcon} ${Math.abs(changePct)}%</span>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── LunarCrush ──
+function renderLunarCrush() {
+  const coins = DATA.lunarcrush || [];
+  const container = document.getElementById('coinCards');
+
+  container.innerHTML = coins.map(c => {
+    const trendIcon = c.trend === 'up' ? '🟢' : c.trend === 'down' ? '🔴' : '🟡';
+    return `
+    <div class="coin-card">
+      <div class="coin-name">${c.symbol} ${trendIcon}</div>
+      <div style="margin:8px 0">
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden">
+          <div style="width:${c.sentiment_positive_pct}%;background:var(--green)"></div>
+          <div style="width:${c.sentiment_neutral_pct}%;background:var(--text3)"></div>
+          <div style="width:${c.sentiment_negative_pct}%;background:var(--red)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="color:var(--green);font-size:10px">${c.sentiment_positive_pct}%</span>
+          <span style="color:var(--red);font-size:10px">${c.sentiment_negative_pct}%</span>
+        </div>
+      </div>
+      <div class="coin-stat">게시물 <span class="num">${formatNum(c.num_posts || 0)}</span></div>
+      <div class="coin-stat">참여 <span class="num">${formatNum(c.interactions_24h || 0)}</span></div>
+    </div>`;
+  }).join('');
+
+  // Social comparison chart
+  if (coins.length === 0) return;
+  const ctx = document.getElementById('socialChart').getContext('2d');
+  if (socialChart) socialChart.destroy();
+
+  socialChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: coins.map(c => c.symbol),
+      datasets: [
+        {
+          label: '긍정',
+          data: coins.map(c => c.sentiment_positive_pct),
+          backgroundColor: 'rgba(34,197,94,0.7)',
+          borderRadius: 4,
+        },
+        {
+          label: '부정',
+          data: coins.map(c => c.sentiment_negative_pct),
+          backgroundColor: 'rgba(239,68,68,0.7)',
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#a1a1aa', font: { family: 'Noto Sans KR', size: 11 } }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#a1a1aa', font: { family: 'JetBrains Mono', size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#71717a', font: { size: 10 }, callback: v => v + '%' }
+        }
+      }
+    }
+  });
+}
+
+// ── Finnhub ──
+function renderFinnhub() {
+  const items = DATA.finnhub || [];
+  const container = document.getElementById('newsBars');
+
+  container.innerHTML = items.map(item => {
+    const bullColor = item.bullish_pct >= 55 ? 'var(--green)' : item.bullish_pct <= 45 ? 'var(--red)' : 'var(--yellow)';
+    return `
+    <div class="news-item">
+      <div class="symbol-row">
+        <span class="sym">${item.symbol}</span>
+        <span class="buzz">기사 ${item.articles_this_week}건 · Buzz ${item.buzz_score}x</span>
+      </div>
+      <div class="sentiment-bar">
+        <div class="bull" style="width:${item.bullish_pct}%"></div>
+        <div class="bear" style="width:${item.bearish_pct}%"></div>
+      </div>
+      <div class="sentiment-labels">
+        <span style="color:var(--green)">강세 ${item.bullish_pct}%</span>
+        <span style="color:var(--red)">약세 ${item.bearish_pct}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// Tab & Filter 핸들러
+// ═══════════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    sendHeight();
+  });
+});
+
+document.querySelectorAll('.ticker-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ticker-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderApeWisdom(btn.dataset.filter);
+  });
+});
+
+// ═══════════════════════════════════════════════
+// iframe 높이 동기화 (HerdVibe 표준)
+// ═══════════════════════════════════════════════
+var _lastH=0,_ht;
+function sendHeight(){clearTimeout(_ht);_ht=setTimeout(function(){var h=document.body.offsetHeight;if(Math.abs(h-_lastH)>5){_lastH=h;window.parent.postMessage({type:'resize',height:h},'*');}},150);}
+window.addEventListener('message',function(e){if(e.data&&e.data.type==='requestResize'){_lastH=0;sendHeight();}});
+window.addEventListener('resize',sendHeight);
+new MutationObserver(sendHeight).observe(document.body,{childList:true,subtree:true});
+
+// ═══════════════════════════════════════════════
+// 초기화
+// ═══════════════════════════════════════════════
+loadData();
+sendHeight();
+</script>
+</body>
+</html>
