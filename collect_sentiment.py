@@ -72,21 +72,38 @@ def fetch_cnn_fear_greed():
                 "name_kr": name_kr,
             }
 
-        # 히스토리컬 데이터 — 전체
+        # 히스토리컬 데이터 — 누적 병합
         hist_raw = raw.get("fear_and_greed_historical", {})
         hist_data = hist_raw.get("data", []) if isinstance(hist_raw, dict) else []
-        result["history"] = []
+        new_history = {}
         for entry in hist_data:
             ts = entry.get("x", 0)
             val = entry.get("y", 0)
             if ts > 0 and val is not None:
-                result["history"].append({
-                    "x": ts,
-                    "y": round(float(val), 1),
-                    "date": datetime.fromtimestamp(
-                        ts / 1000, tz=timezone.utc
-                    ).strftime("%Y-%m-%d"),
-                })
+                date_str = datetime.fromtimestamp(
+                    ts / 1000, tz=timezone.utc
+                ).strftime("%Y-%m-%d")
+                new_history[date_str] = round(float(val), 1)
+
+        # 기존 저장된 히스토리 로드 + 병합 (데이터 누적)
+        existing_path = os.path.join(DATA_DIR, "sentiment.json")
+        if os.path.exists(existing_path):
+            try:
+                with open(existing_path, "r", encoding="utf-8") as f:
+                    existing = json.load(f)
+                old_history = existing.get("cnn_fear_greed", {}).get("history", [])
+                for h in old_history:
+                    d = h.get("date", "")
+                    if d and d not in new_history:
+                        new_history[d] = h.get("y", 0)
+            except Exception:
+                pass
+
+        # 날짜순 정렬
+        result["history"] = [
+            {"date": d, "y": v}
+            for d, v in sorted(new_history.items())
+        ]
 
         print(f"   ✅ CNN F&G: {result['score']} ({result['rating']})")
         for k, v in result["indicators"].items():
