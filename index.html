@@ -465,7 +465,7 @@
       <div style="display:flex;gap:4px">
         <button class="period-btn" data-days="30" onclick="setHistoryPeriod(30,this)">1M</button>
         <button class="period-btn" data-days="90" onclick="setHistoryPeriod(90,this)">3M</button>
-        <button class="period-btn active" data-days="180" onclick="setHistoryPeriod(180,this)">6M</button>
+        <button class="period-btn" data-days="180" onclick="setHistoryPeriod(180,this)">6M</button>
         <button class="period-btn" data-days="365" onclick="setHistoryPeriod(365,this)">1Y</button>
         <button class="period-btn" data-days="0" onclick="setHistoryPeriod(0,this)">ALL</button>
       </div>
@@ -572,9 +572,9 @@ const SAMPLE_DATA = {
     history: (() => {
       const h = [];
       const base = Date.now();
-      for (let i = 59; i >= 0; i--) {
+      for (let i = 399; i >= 0; i--) {
         const d = new Date(base - i * 86400000);
-        const v = 35 + Math.sin(i * 0.15) * 20 + (Math.random() - 0.5) * 10;
+        const v = 45 + Math.sin(i * 0.03) * 25 + Math.sin(i * 0.15) * 10 + (Math.random() - 0.5) * 8;
         h.push({ date: d.toISOString().slice(0, 10), y: Math.round(Math.max(5, Math.min(95, v)) * 10) / 10 });
       }
       return h;
@@ -757,16 +757,50 @@ function renderCNN() {
     </div>`;
   }).join('');
 
-  // History chart — default 180 days
-  renderHistoryChart(180);
+  // History chart — auto-detect best period
+  updatePeriodButtons();
+  renderHistoryChart(currentHistoryDays);
 }
 
-var currentHistoryDays = 180;
+var currentHistoryDays = 0; // default ALL
 function setHistoryPeriod(days, btn) {
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   currentHistoryDays = days;
   renderHistoryChart(days);
+}
+
+function updatePeriodButtons() {
+  const fg = DATA.cnn_fear_greed;
+  if (!fg) return;
+  const history = fg.history || [];
+  const totalDays = history.length;
+
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    const d = parseInt(btn.dataset.days);
+    if (d > 0 && d > totalDays) {
+      btn.style.opacity = '0.3';
+      btn.style.pointerEvents = 'none';
+    } else {
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+    }
+  });
+
+  // Auto-select best default: largest available period
+  const periods = [180, 90, 60, 30];
+  let defaultDays = 0; // ALL
+  for (const p of periods) {
+    if (totalDays >= p) { defaultDays = p; break; }
+  }
+  if (totalDays < 30) defaultDays = 0;
+
+  // Activate default button
+  document.querySelectorAll('.period-btn').forEach(b => {
+    b.classList.remove('active');
+    if (parseInt(b.dataset.days) === defaultDays) b.classList.add('active');
+  });
+  currentHistoryDays = defaultDays;
 }
 
 function renderHistoryChart(days) {
