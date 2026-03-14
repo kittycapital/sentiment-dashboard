@@ -1,382 +1,33 @@
 {
-  "updated_at": "2026-03-14T08:01:31Z",
+  "updated_at": "2026-03-14T08:11:47Z",
   "composite": {
-    "score": 45.5,
-    "rating": "중립",
+    "score": 90.0,
+    "rating": "극도의 탐욕",
     "components": {
-      "cnn_fear_greed": 20.0,
       "apewisdom_trend": 90
     },
     "weights": {
-      "cnn_fear_greed": 0.35,
       "apewisdom_trend": 0.2
     }
   },
-  "cnn_fear_greed": {
-    "score": 20.0,
-    "rating": "extreme fear",
-    "previous_close": 21.2,
-    "week_ago": 25.1,
-    "month_ago": 37.8,
-    "year_ago": 15.2,
-    "timestamp": "2026-03-13T23:59:41+00:00",
-    "indicators": {
-      "stock_price_momentum": {
-        "score": 0,
-        "rating": "",
-        "name_kr": "주가 모멘텀"
-      },
-      "stock_price_strength": {
-        "score": 0,
-        "rating": "",
-        "name_kr": "주가 강도"
-      },
-      "stock_price_breadth": {
-        "score": 0,
-        "rating": "",
-        "name_kr": "주가 폭"
-      },
-      "put_call_options": {
-        "score": 0,
-        "rating": "",
-        "name_kr": "풋/콜 옵션"
-      },
-      "market_volatility_vix": {
-        "score": 0,
-        "rating": "",
-        "name_kr": "시장 변동성(VIX)"
-      },
-      "safe_haven_demand": {
-        "score": 0,
-        "rating": "",
-        "name_kr": "안전자산 수요"
-      },
-      "junk_bond_demand": {
-        "score": 0,
-        "rating": "",
-        "name_kr": "정크본드 수요"
-      }
-    },
-    "history": [
-      {
-        "x": 1765843200000.0,
-        "y": 46.4,
-        "date": "2025-12-16"
-      },
-      {
-        "x": 1765929600000.0,
-        "y": 37.7,
-        "date": "2025-12-17"
-      },
-      {
-        "x": 1766016000000.0,
-        "y": 42.4,
-        "date": "2025-12-18"
-      },
-      {
-        "x": 1766102400000.0,
-        "y": 44.2,
-        "date": "2025-12-19"
-      },
-      {
-        "x": 1766361600000.0,
-        "y": 54.9,
-        "date": "2025-12-22"
-      },
-      {
-        "x": 1766448000000.0,
-        "y": 58.6,
-        "date": "2025-12-23"
-      },
-      {
-        "x": 1766534400000.0,
-        "y": 58.0,
-        "date": "2025-12-24"
-      },
-      {
-        "x": 1766707200000.0,
-        "y": 54.9,
-        "date": "2025-12-26"
-      },
-      {
-        "x": 1766966400000.0,
-        "y": 47.9,
-        "date": "2025-12-29"
-      },
-      {
-        "x": 1767052800000.0,
-        "y": 46.1,
-        "date": "2025-12-30"
-      },
-      {
-        "x": 1767139200000.0,
-        "y": 43.3,
-        "date": "2025-12-31"
-      },
-      {
-        "x": 1767312000000.0,
-        "y": 45.2,
-        "date": "2026-01-02"
-      },
-      {
-        "x": 1767571200000.0,
-        "y": 47.6,
-        "date": "2026-01-05"
-      },
-      {
-        "x": 1767657600000.0,
-        "y": 52.9,
-        "date": "2026-01-06"
-      },
-      {
-        "x": 1767744000000.0,
-        "y": 48.6,
-        "date": "2026-01-07"
-      },
-      {
-        "x": 1767830400000.0,
-        "y": 48.4,
-        "date": "2026-01-08"
-      },
-      {
-        "x": 1767916800000.0,
-        "y": 54.1,
-        "date": "2026-01-09"
-      },
-      {
-        "x": 1768176000000.0,
-        "y": 58.0,
-        "date": "2026-01-12"
-      },
-      {
-        "x": 1768262400000.0,
-        "y": 59.1,
-        "date": "2026-01-13"
-      },
-      {
-        "x": 1768348800000.0,
-        "y": 58.6,
-        "date": "2026-01-14"
-      },
-      {
-        "x": 1768435200000.0,
-        "y": 63.7,
-        "date": "2026-01-15"
-      },
-      {
-        "x": 1768521600000.0,
-        "y": 63.8,
-        "date": "2026-01-16"
-      },
-      {
-        "x": 1768867200000.0,
-        "y": 50.9,
-        "date": "2026-01-20"
-      },
-      {
-        "x": 1768953600000.0,
-        "y": 53.9,
-        "date": "2026-01-21"
-      },
-      {
-        "x": 1769040000000.0,
-        "y": 54.8,
-        "date": "2026-01-22"
-      },
-      {
-        "x": 1769126400000.0,
-        "y": 54.9,
-        "date": "2026-01-23"
-      },
-      {
-        "x": 1769385600000.0,
-        "y": 57.7,
-        "date": "2026-01-26"
-      },
-      {
-        "x": 1769472000000.0,
-        "y": 65.0,
-        "date": "2026-01-27"
-      },
-      {
-        "x": 1769558400000.0,
-        "y": 65.5,
-        "date": "2026-01-28"
-      },
-      {
-        "x": 1769644800000.0,
-        "y": 63.8,
-        "date": "2026-01-29"
-      },
-      {
-        "x": 1769731200000.0,
-        "y": 58.6,
-        "date": "2026-01-30"
-      },
-      {
-        "x": 1769990400000.0,
-        "y": 63.4,
-        "date": "2026-02-02"
-      },
-      {
-        "x": 1770076800000.0,
-        "y": 43.3,
-        "date": "2026-02-03"
-      },
-      {
-        "x": 1770163200000.0,
-        "y": 47.2,
-        "date": "2026-02-04"
-      },
-      {
-        "x": 1770336000000.0,
-        "y": 46.8,
-        "date": "2026-02-06"
-      },
-      {
-        "x": 1770595200000.0,
-        "y": 51.6,
-        "date": "2026-02-09"
-      },
-      {
-        "x": 1770681600000.0,
-        "y": 51.7,
-        "date": "2026-02-10"
-      },
-      {
-        "x": 1770768000000.0,
-        "y": 53.8,
-        "date": "2026-02-11"
-      },
-      {
-        "x": 1770854400000.0,
-        "y": 38.1,
-        "date": "2026-02-12"
-      },
-      {
-        "x": 1770940800000.0,
-        "y": 37.8,
-        "date": "2026-02-13"
-      },
-      {
-        "x": 1771286400000.0,
-        "y": 40.9,
-        "date": "2026-02-17"
-      },
-      {
-        "x": 1771372800000.0,
-        "y": 41.9,
-        "date": "2026-02-18"
-      },
-      {
-        "x": 1771459200000.0,
-        "y": 39.6,
-        "date": "2026-02-19"
-      },
-      {
-        "x": 1771545600000.0,
-        "y": 44.4,
-        "date": "2026-02-20"
-      },
-      {
-        "x": 1771804800000.0,
-        "y": 37.0,
-        "date": "2026-02-23"
-      },
-      {
-        "x": 1771891200000.0,
-        "y": 43.3,
-        "date": "2026-02-24"
-      },
-      {
-        "x": 1771977600000.0,
-        "y": 45.8,
-        "date": "2026-02-25"
-      },
-      {
-        "x": 1772064000000.0,
-        "y": 42.2,
-        "date": "2026-02-26"
-      },
-      {
-        "x": 1772150400000.0,
-        "y": 38.0,
-        "date": "2026-02-27"
-      },
-      {
-        "x": 1772409600000.0,
-        "y": 33.6,
-        "date": "2026-03-02"
-      },
-      {
-        "x": 1772496000000.0,
-        "y": 33.2,
-        "date": "2026-03-03"
-      },
-      {
-        "x": 1772582400000.0,
-        "y": 37.2,
-        "date": "2026-03-04"
-      },
-      {
-        "x": 1772668800000.0,
-        "y": 28.3,
-        "date": "2026-03-05"
-      },
-      {
-        "x": 1772755200000.0,
-        "y": 25.1,
-        "date": "2026-03-06"
-      },
-      {
-        "x": 1773014400000.0,
-        "y": 27.7,
-        "date": "2026-03-09"
-      },
-      {
-        "x": 1773100800000.0,
-        "y": 26.1,
-        "date": "2026-03-10"
-      },
-      {
-        "x": 1773187200000.0,
-        "y": 25.1,
-        "date": "2026-03-11"
-      },
-      {
-        "x": 1773273600000.0,
-        "y": 22.5,
-        "date": "2026-03-12"
-      },
-      {
-        "x": 1773360000000.0,
-        "y": 20.0,
-        "date": "2026-03-13"
-      },
-      {
-        "x": 1773446381000.0,
-        "y": 20.0,
-        "date": "2026-03-13"
-      }
-    ]
-  },
+  "cnn_fear_greed": null,
   "apewisdom": {
     "all-stocks": [
       {
         "rank": 1,
         "ticker": "SPY",
         "name": "SPDR S&amp;P 500 ETF Trust",
-        "mentions": 526,
-        "upvotes": 3176,
+        "mentions": 524,
+        "upvotes": 3180,
         "rank_24h_ago": 1,
-        "mentions_24h_ago": 617
+        "mentions_24h_ago": 616
       },
       {
         "rank": 2,
         "ticker": "USO",
         "name": "United States Commodity Funds LLC - United States Oil Fund",
-        "mentions": 198,
-        "upvotes": 1409,
+        "mentions": 197,
+        "upvotes": 1403,
         "rank_24h_ago": 2,
         "mentions_24h_ago": 183
       },
@@ -385,7 +36,7 @@
         "ticker": "MSFT",
         "name": "Microsoft",
         "mentions": 101,
-        "upvotes": 486,
+        "upvotes": 488,
         "rank_24h_ago": 14,
         "mentions_24h_ago": 37
       },
@@ -393,10 +44,10 @@
         "rank": 4,
         "ticker": "MU",
         "name": "Micron Technology",
-        "mentions": 101,
-        "upvotes": 405,
+        "mentions": 100,
+        "upvotes": 412,
         "rank_24h_ago": 7,
-        "mentions_24h_ago": 61
+        "mentions_24h_ago": 60
       },
       {
         "rank": 5,
@@ -414,15 +65,15 @@
         "mentions": 86,
         "upvotes": 255,
         "rank_24h_ago": 4,
-        "mentions_24h_ago": 85
+        "mentions_24h_ago": 84
       },
       {
         "rank": 7,
         "ticker": "META",
         "name": "Meta Platforms (Facebook)",
         "mentions": 83,
-        "upvotes": 935,
-        "rank_24h_ago": 29,
+        "upvotes": 937,
+        "rank_24h_ago": 30,
         "mentions_24h_ago": 22
       },
       {
@@ -430,7 +81,7 @@
         "ticker": "DTE",
         "name": "DTE Energy",
         "mentions": 69,
-        "upvotes": 1169,
+        "upvotes": 1171,
         "rank_24h_ago": 6,
         "mentions_24h_ago": 67
       },
@@ -439,8 +90,8 @@
         "ticker": "HOOD",
         "name": "Robinhood",
         "mentions": 59,
-        "upvotes": 178,
-        "rank_24h_ago": 42,
+        "upvotes": 176,
+        "rank_24h_ago": 41,
         "mentions_24h_ago": 19
       },
       {
@@ -449,7 +100,7 @@
         "name": "Signing Day Sports",
         "mentions": 55,
         "upvotes": 175,
-        "rank_24h_ago": 73,
+        "rank_24h_ago": 76,
         "mentions_24h_ago": 12
       },
       {
@@ -458,7 +109,7 @@
         "name": "Tesla",
         "mentions": 49,
         "upvotes": 92,
-        "rank_24h_ago": 18,
+        "rank_24h_ago": 17,
         "mentions_24h_ago": 32
       },
       {
@@ -467,8 +118,8 @@
         "name": "Nebius Group",
         "mentions": 44,
         "upvotes": 94,
-        "rank_24h_ago": 37,
-        "mentions_24h_ago": 22
+        "rank_24h_ago": 34,
+        "mentions_24h_ago": 20
       },
       {
         "rank": 13,
@@ -476,26 +127,26 @@
         "name": "Vanguard S&amp;P 500 ETF",
         "mentions": 42,
         "upvotes": 274,
-        "rank_24h_ago": 53,
+        "rank_24h_ago": 52,
         "mentions_24h_ago": 14
       },
       {
         "rank": 14,
-        "ticker": "SNDK",
-        "name": "Sandisk",
-        "mentions": 39,
-        "upvotes": 83,
-        "rank_24h_ago": 70,
-        "mentions_24h_ago": 10
-      },
-      {
-        "rank": 15,
         "ticker": "CXAI",
         "name": "CXApp",
         "mentions": 38,
         "upvotes": 132,
-        "rank_24h_ago": 276,
+        "rank_24h_ago": 273,
         "mentions_24h_ago": 2
+      },
+      {
+        "rank": 15,
+        "ticker": "SNDK",
+        "name": "Sandisk",
+        "mentions": 38,
+        "upvotes": 82,
+        "rank_24h_ago": 72,
+        "mentions_24h_ago": 9
       },
       {
         "rank": 16,
@@ -503,7 +154,7 @@
         "name": "Dow",
         "mentions": 36,
         "upvotes": 146,
-        "rank_24h_ago": 11,
+        "rank_24h_ago": 12,
         "mentions_24h_ago": 42
       },
       {
@@ -511,7 +162,7 @@
         "ticker": "AM",
         "name": "Antero Midstream",
         "mentions": 36,
-        "upvotes": 140,
+        "upvotes": 141,
         "rank_24h_ago": 10,
         "mentions_24h_ago": 45
       },
@@ -519,8 +170,8 @@
         "rank": 18,
         "ticker": "EU",
         "name": "enCore Energy",
-        "mentions": 34,
-        "upvotes": 366,
+        "mentions": 33,
+        "upvotes": 364,
         "rank_24h_ago": 23,
         "mentions_24h_ago": 24
       },
@@ -529,8 +180,8 @@
         "ticker": "WTI",
         "name": "W&amp;T Offshore",
         "mentions": 30,
-        "upvotes": 119,
-        "rank_24h_ago": 15,
+        "upvotes": 120,
+        "rank_24h_ago": 16,
         "mentions_24h_ago": 35
       },
       {
@@ -540,7 +191,7 @@
         "mentions": 24,
         "upvotes": 115,
         "rank_24h_ago": 20,
-        "mentions_24h_ago": 32
+        "mentions_24h_ago": 31
       }
     ],
     "all-crypto": []
@@ -548,17 +199,17 @@
   "lunarcrush": [
     {
       "coin": "bitcoin",
-      "symbol": "BITCO",
+      "symbol": "BTC",
       "error": "401 Client Error: Unauthorized for url: https://lunarcrush.com/api4/public/topic/bitcoin/v1"
     },
     {
       "coin": "ethereum",
-      "symbol": "ETHER",
+      "symbol": "ETH",
       "error": "401 Client Error: Unauthorized for url: https://lunarcrush.com/api4/public/topic/ethereum/v1"
     },
     {
       "coin": "solana",
-      "symbol": "SOLAN",
+      "symbol": "SOL",
       "error": "401 Client Error: Unauthorized for url: https://lunarcrush.com/api4/public/topic/solana/v1"
     },
     {
@@ -568,7 +219,7 @@
     },
     {
       "coin": "dogecoin",
-      "symbol": "DOGEC",
+      "symbol": "DOGE",
       "error": "401 Client Error: Unauthorized for url: https://lunarcrush.com/api4/public/topic/dogecoin/v1"
     }
   ],
