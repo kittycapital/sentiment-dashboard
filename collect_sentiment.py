@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-HerdVibe 종합 센티먼트 수집기
+HerdVibe 종합 센티먼트 수집기 v2
 무료 API만 사용: CNN F&G, ApeWisdom, LunarCrush Public, Finnhub
-GitHub Actions에서 매일 실행
 """
 
 import json
@@ -11,7 +10,6 @@ import sys
 import time
 from datetime import datetime, timezone
 
-# requests는 pip install 필요
 import requests
 
 DATA_DIR = os.environ.get("DATA_DIR", "data")
@@ -26,14 +24,16 @@ HEADERS = {
 # 1. CNN Fear & Greed Index (주식)
 # ──────────────────────────────────────────────
 def fetch_cnn_fear_greed():
-    """CNN Fear & Greed 종합 + 7개 하위 지표 수집"""
+    """CNN Fear & Greed 종합 + 7개 하위 지표 + 히스토리컬"""
     print("[1/4] CNN Fear & Greed Index 수집 중...")
-    url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
+    # 2020년부터 전체 히스토리 요청
+    url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata/2020-01-01"
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp = requests.get(url, headers=HEADERS, timeout=20)
         resp.raise_for_status()
         raw = resp.json()
 
+        # 종합 점수
         fg = raw.get("fear_and_greed", {})
         result = {
             "score": round(fg.get("score", 0), 1),
@@ -46,18 +46,9 @@ def fetch_cnn_fear_greed():
             "indicators": {},
         }
 
-        # 7개 하위 지표
-        indicator_keys = [
-            "stock_price_momentum",
-            "stock_price_strength",
-            "stock_price_breadth",
-            "put_call_options",
-            "market_volatility_vix",
-            "safe_haven_demand",
-            "junk_bond_demand",
-        ]
-        indicator_names_kr = {
-            "stock_price_momentum": "주가 모멘텀",
+        # 7개 하위 지표 — 최상위 레벨 키로 접근
+        indicator_map = {
+            "market_momentum_sp500": "주가 모멘텀",
             "stock_price_strength": "주가 강도",
             "stock_price_breadth": "주가 폭",
             "put_call_options": "풋/콜 옵션",
@@ -66,16 +57,11 @@ def fetch_cnn_fear_greed():
             "junk_bond_demand": "정크본드 수요",
         }
 
-        for key in indicator_keys:
-            ind = raw.get("fear_and_greed_historical", {}).get(key, [{}])
-            # CNN returns list with latest entry
+        for key, name_kr in indicator_map.items():
+            ind = raw.get(key, {})
             if isinstance(ind, dict):
-                score_val = ind.get("score", 0) or ind.get("x", 0)
+                score_val = ind.get("score", 0)
                 rating_val = ind.get("rating", "")
-            elif isinstance(ind, list) and len(ind) > 0:
-                latest = ind[-1] if isinstance(ind[-1], dict) else {}
-                score_val = latest.get("score", latest.get("x", 0))
-                rating_val = latest.get("rating", "")
             else:
                 score_val = 0
                 rating_val = ""
@@ -83,24 +69,29 @@ def fetch_cnn_fear_greed():
             result["indicators"][key] = {
                 "score": round(float(score_val) if score_val else 0, 1),
                 "rating": rating_val,
-                "name_kr": indicator_names_kr.get(key, key),
+                "name_kr": name_kr,
             }
 
-        # 히스토리컬 데이터 (최근 30일)
-        hist_data = raw.get("fear_and_greed_historical", {}).get("data", [])
+        # 히스토리컬 데이터 — 전체
+        hist_raw = raw.get("fear_and_greed_historical", {})
+        hist_data = hist_raw.get("data", []) if isinstance(hist_raw, dict) else []
         result["history"] = []
-        for entry in hist_data[-60:]:
-            result["history"].append({
-                "x": entry.get("x", 0),
-                "y": round(entry.get("y", 0), 1),
-                "date": datetime.fromtimestamp(
-                    entry.get("x", 0) / 1000, tz=timezone.utc
-                ).strftime("%Y-%m-%d")
-                if entry.get("x", 0) > 0
-                else "",
-            })
+        for entry in hist_data:
+            ts = entry.get("x", 0)
+            val = entry.get("y", 0)
+            if ts > 0 and val is not None:
+                result["history"].append({
+                    "x": ts,
+                    "y": round(float(val), 1),
+                    "date": datetime.fromtimestamp(
+                        ts / 1000, tz=timezone.utc
+                    ).strftime("%Y-%m-%d"),
+                })
 
         print(f"   ✅ CNN F&G: {result['score']} ({result['rating']})")
+        for k, v in result["indicators"].items():
+            print(f"      {v['name_kr']}: {v['score']} ({v['rating']})")
+        print(f"      히스토리: {len(result['history'])}일")
         return result
 
     except Exception as e:
@@ -115,10 +106,7 @@ def fetch_apewisdom():
     """ApeWisdom에서 주식 + 크립토 핫 종목 수집"""
     print("[2/4] ApeWisdom 핫 종목 수집 중...")
     results = {}
-    filters = {
-        "all-stocks": "주식",
-        "all-crypto": "크립토",
-    }
+    filters = {"all-stocks": "주식", "all-crypto": "크립토"}
 
     for filter_key, label in filters.items():
         url = f"https://apewisdom.io/api/v1.0/filter/{filter_key}"
@@ -126,7 +114,6 @@ def fetch_apewisdom():
             resp = requests.get(url, headers=HEADERS, timeout=15)
             resp.raise_for_status()
             data = resp.json()
-
             tickers = []
             for item in data.get("results", [])[:20]:
                 tickers.append({
@@ -138,10 +125,8 @@ def fetch_apewisdom():
                     "rank_24h_ago": item.get("rank_24h_ago", 0),
                     "mentions_24h_ago": int(item.get("mentions_24h_ago", 0)),
                 })
-
             results[filter_key] = tickers
             print(f"   ✅ ApeWisdom {label}: {len(tickers)}개 종목")
-
         except Exception as e:
             print(f"   ❌ ApeWisdom {label} 실패: {e}")
             results[filter_key] = []
@@ -152,51 +137,65 @@ def fetch_apewisdom():
 # ──────────────────────────────────────────────
 # 3. LunarCrush Public (크립토 소셜 센티먼트)
 # ──────────────────────────────────────────────
+COIN_SYMBOLS = {
+    "bitcoin": "BTC",
+    "ethereum": "ETH",
+    "solana": "SOL",
+    "xrp": "XRP",
+    "dogecoin": "DOGE",
+}
+
+
 def fetch_lunarcrush():
     """LunarCrush Public API에서 주요 코인 센티먼트 수집"""
     print("[3/4] LunarCrush 소셜 센티먼트 수집 중...")
-    coins = ["bitcoin", "ethereum", "solana", "xrp", "dogecoin"]
     results = []
 
-    for coin in coins:
+    for coin, symbol in COIN_SYMBOLS.items():
         url = f"https://lunarcrush.com/api4/public/topic/{coin}/v1"
         try:
             resp = requests.get(url, headers=HEADERS, timeout=15)
             resp.raise_for_status()
-            data = resp.json().get("data", {})
+            body = resp.json()
+            data = body.get("data", {})
 
+            # 센티먼트 상세
             sentiment_detail = data.get("types_sentiment_detail", {})
-            total_pos = sum(
-                v.get("positive", 0) for v in sentiment_detail.values() if isinstance(v, dict)
-            )
-            total_neg = sum(
-                v.get("negative", 0) for v in sentiment_detail.values() if isinstance(v, dict)
-            )
-            total_neu = sum(
-                v.get("neutral", 0) for v in sentiment_detail.values() if isinstance(v, dict)
-            )
+            total_pos = 0
+            total_neg = 0
+            total_neu = 0
+            for platform, vals in sentiment_detail.items():
+                if isinstance(vals, dict):
+                    total_pos += vals.get("positive", 0)
+                    total_neg += vals.get("negative", 0)
+                    total_neu += vals.get("neutral", 0)
             total = total_pos + total_neg + total_neu
+
+            # 평균 센티먼트 스코어 (types_sentiment)
+            types_sent = data.get("types_sentiment", {})
+            sent_scores = [v for v in types_sent.values() if isinstance(v, (int, float)) and v > 0]
+            avg_sentiment = round(sum(sent_scores) / len(sent_scores), 1) if sent_scores else 0
 
             results.append({
                 "coin": coin,
-                "symbol": data.get("topic", coin).upper()[:5],
+                "symbol": symbol,
                 "interactions_24h": data.get("interactions_24h", 0),
                 "num_contributors": data.get("num_contributors", 0),
                 "num_posts": data.get("num_posts", 0),
+                "sentiment_score": avg_sentiment,
                 "sentiment_positive_pct": round(total_pos / total * 100, 1) if total > 0 else 0,
                 "sentiment_negative_pct": round(total_neg / total * 100, 1) if total > 0 else 0,
                 "sentiment_neutral_pct": round(total_neu / total * 100, 1) if total > 0 else 0,
                 "trend": data.get("trend", "flat"),
-                "types_sentiment": data.get("types_sentiment", {}),
             })
-            print(f"   ✅ {coin}: 긍정 {results[-1]['sentiment_positive_pct']}%")
-            time.sleep(1)  # rate limit 방지
+            print(f"   ✅ {symbol}: 센티먼트 {avg_sentiment}, 긍정 {results[-1]['sentiment_positive_pct']}%")
+            time.sleep(1)
 
         except Exception as e:
-            print(f"   ❌ {coin} 실패: {e}")
+            print(f"   ❌ {symbol} 실패: {e}")
             results.append({
                 "coin": coin,
-                "symbol": coin.upper()[:5],
+                "symbol": symbol,
                 "error": str(e),
             })
 
@@ -211,7 +210,7 @@ def fetch_finnhub_sentiment():
     print("[4/4] Finnhub 뉴스 센티먼트 수집 중...")
     api_key = os.environ.get("FINNHUB_API_KEY", "")
     if not api_key:
-        print("   ⚠️ FINNHUB_API_KEY 환경변수 없음 - 스킵")
+        print("   ⚠️ FINNHUB_API_KEY 없음 — finnhub.io에서 무료 키 발급 후 추가하세요")
         return None
 
     url = "https://finnhub.io/api/v1/news-sentiment"
@@ -220,29 +219,21 @@ def fetch_finnhub_sentiment():
 
     for symbol in symbols:
         try:
-            resp = requests.get(
-                url,
-                params={"symbol": symbol, "token": api_key},
-                timeout=10,
-            )
+            resp = requests.get(url, params={"symbol": symbol, "token": api_key}, timeout=10)
             resp.raise_for_status()
             data = resp.json()
             sentiment = data.get("sentiment", {})
             buzz = data.get("buzz", {})
-
             results.append({
                 "symbol": symbol,
                 "bullish_pct": round(sentiment.get("bullishPercent", 0) * 100, 1),
                 "bearish_pct": round(sentiment.get("bearishPercent", 0) * 100, 1),
-                "sector_avg_bullish": round(
-                    data.get("sectorAverageBullishPercent", 0) * 100, 1
-                ),
+                "sector_avg_bullish": round(data.get("sectorAverageBullishPercent", 0) * 100, 1),
                 "articles_this_week": buzz.get("articlesInLastWeek", 0),
                 "weekly_avg": buzz.get("weeklyAverage", 0),
                 "buzz_score": round(buzz.get("buzz", 0), 2),
             })
             time.sleep(0.5)
-
         except Exception as e:
             print(f"   ⚠️ {symbol}: {e}")
 
@@ -256,25 +247,20 @@ def fetch_finnhub_sentiment():
 # 종합 센티먼트 점수 계산
 # ──────────────────────────────────────────────
 def calculate_composite_score(cnn, apewisdom, lunarcrush, finnhub):
-    """각 소스를 0-100으로 정규화하고 가중 평균"""
     scores = {}
     weights = {}
 
-    # CNN Fear & Greed (이미 0-100)
     if cnn and cnn.get("score"):
         scores["cnn_fear_greed"] = cnn["score"]
         weights["cnn_fear_greed"] = 0.35
 
-    # LunarCrush 긍정 비율 → 0-100
     if lunarcrush:
-        valid = [c for c in lunarcrush if "sentiment_positive_pct" in c and c["sentiment_positive_pct"] > 0]
+        valid = [c for c in lunarcrush if c.get("sentiment_positive_pct", 0) > 0]
         if valid:
             avg_pos = sum(c["sentiment_positive_pct"] for c in valid) / len(valid)
-            # 긍정 비율 30-50% → 0-100 범위로 정규화
             scores["lunarcrush_social"] = min(100, max(0, (avg_pos - 20) * 3.33))
             weights["lunarcrush_social"] = 0.25
 
-    # ApeWisdom 멘션 트렌드 (상승=bullish)
     if apewisdom:
         stocks = apewisdom.get("all-stocks", [])
         if stocks:
@@ -282,34 +268,26 @@ def calculate_composite_score(cnn, apewisdom, lunarcrush, finnhub):
                 1 for t in stocks[:10]
                 if t.get("mentions", 0) > t.get("mentions_24h_ago", 0)
             )
-            scores["apewisdom_trend"] = trending_up * 10  # 0-100
+            scores["apewisdom_trend"] = trending_up * 10
             weights["apewisdom_trend"] = 0.20
 
-    # Finnhub 강세 비율 → 0-100
     if finnhub:
         avg_bull = sum(r["bullish_pct"] for r in finnhub) / len(finnhub)
-        scores["finnhub_news"] = min(100, avg_bull * 1.5)  # 보통 40-60 범위
+        scores["finnhub_news"] = min(100, avg_bull * 1.5)
         weights["finnhub_news"] = 0.20
 
     if not scores:
         return {"score": 50, "components": {}, "rating": "데이터 없음"}
 
-    # 가중 평균
     total_weight = sum(weights[k] for k in scores)
     composite = sum(scores[k] * weights[k] / total_weight for k in scores)
     composite = round(composite, 1)
 
-    # 등급
-    if composite >= 80:
-        rating = "극도의 탐욕"
-    elif composite >= 60:
-        rating = "탐욕"
-    elif composite >= 40:
-        rating = "중립"
-    elif composite >= 20:
-        rating = "공포"
-    else:
-        rating = "극도의 공포"
+    if composite >= 80: rating = "극도의 탐욕"
+    elif composite >= 60: rating = "탐욕"
+    elif composite >= 40: rating = "중립"
+    elif composite >= 20: rating = "공포"
+    else: rating = "극도의 공포"
 
     return {
         "score": composite,
@@ -319,12 +297,9 @@ def calculate_composite_score(cnn, apewisdom, lunarcrush, finnhub):
     }
 
 
-# ──────────────────────────────────────────────
-# 메인 실행
-# ──────────────────────────────────────────────
 def main():
     print("=" * 50)
-    print("🔍 HerdVibe 종합 센티먼트 수집기")
+    print("🔍 HerdVibe 종합 센티먼트 수집기 v2")
     print(f"⏰ {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 50)
 
@@ -351,11 +326,8 @@ def main():
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    print("\n" + "=" * 50)
-    print(f"📊 종합 센티먼트: {composite['score']} ({composite['rating']})")
+    print(f"\n📊 종합 센티먼트: {composite['score']} ({composite['rating']})")
     print(f"💾 저장: {output_path}")
-    print("=" * 50)
-
     return 0
 
 
