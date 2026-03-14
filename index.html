@@ -452,7 +452,7 @@
 <div class="tabs">
   <div class="tab active" data-tab="cnn">🏛️ 주식 F&G</div>
   <div class="tab" data-tab="apewisdom">🔥 커뮤니티</div>
-  <div class="tab" data-tab="lunarcrush">💬 크립토 소셜</div>
+  <div class="tab" data-tab="crypto">🪙 크립토 센티먼트</div>
   <div class="tab" data-tab="finnhub">📰 뉴스 센티먼트</div>
 </div>
 
@@ -495,14 +495,18 @@
   </table>
 </div>
 
-<!-- Panel: LunarCrush -->
-<div class="panel" id="panel-lunarcrush">
-  <div class="coin-cards" id="coinCards"></div>
+<!-- Panel: Crypto Sentiment -->
+<div class="panel" id="panel-crypto">
+  <div id="cryptoFGSection"></div>
   <div class="chart-box">
-    <div class="chart-title">💬 소셜 센티먼트 비교</div>
+    <div class="chart-title">🪙 크립토 Fear & Greed 추이 (30일)</div>
     <div class="chart-container">
-      <canvas id="socialChart"></canvas>
+      <canvas id="cryptoFGChart"></canvas>
     </div>
+  </div>
+  <div style="margin-top:16px">
+    <div class="chart-title" style="margin-bottom:12px">🔥 CoinGecko 트렌딩 코인</div>
+    <div id="trendingCoins"></div>
   </div>
 </div>
 
@@ -521,7 +525,7 @@
 </div>
 
 <div class="footer">
-  Data: CNN · ApeWisdom · LunarCrush · Finnhub (모두 무료)<br>
+  Data: CNN · ApeWisdom · Alternative.me · CoinGecko · Finnhub (모두 무료)<br>
   Built by <a href="https://herdvibe.com" target="_blank">HerdVibe</a>
 </div>
 
@@ -548,9 +552,9 @@ const SAMPLE_DATA = {
     rating: "공포",
     components: {
       cnn_fear_greed: 38,
-      lunarcrush_social: 51.2,
-      apewisdom_trend: 40,
-      finnhub_news: 48.5
+      crypto_fear_greed: 32,
+      community_trend: 40,
+      news_sentiment: 48.5
     }
   },
   cnn_fear_greed: {
@@ -606,13 +610,27 @@ const SAMPLE_DATA = {
       { rank: 10, ticker: "MATIC", name: "Polygon", mentions: 287, upvotes: 1650, rank_24h_ago: 8, mentions_24h_ago: 301 }
     ]
   },
-  lunarcrush: [
-    { coin: "bitcoin", symbol: "BTC", sentiment_positive_pct: 42.1, sentiment_negative_pct: 18.3, sentiment_neutral_pct: 39.6, interactions_24h: 61019860, num_contributors: 245000, num_posts: 202878, trend: "up" },
-    { coin: "ethereum", symbol: "ETH", sentiment_positive_pct: 38.5, sentiment_negative_pct: 21.2, sentiment_neutral_pct: 40.3, interactions_24h: 18500000, num_contributors: 132000, num_posts: 98000, trend: "flat" },
-    { coin: "solana", symbol: "SOL", sentiment_positive_pct: 45.2, sentiment_negative_pct: 15.8, sentiment_neutral_pct: 39.0, interactions_24h: 9200000, num_contributors: 87000, num_posts: 54000, trend: "up" },
-    { coin: "xrp", symbol: "XRP", sentiment_positive_pct: 35.8, sentiment_negative_pct: 24.1, sentiment_neutral_pct: 40.1, interactions_24h: 7800000, num_contributors: 65000, num_posts: 42000, trend: "down" },
-    { coin: "dogecoin", symbol: "DOGE", sentiment_positive_pct: 48.3, sentiment_negative_pct: 12.5, sentiment_neutral_pct: 39.2, interactions_24h: 10900000, num_contributors: 95000, num_posts: 62000, trend: "up" }
-  ],
+  crypto_sentiment: {
+    fear_greed: { value: 32, classification: "Fear", timestamp: "" },
+    fear_greed_history: (() => {
+      const h = []; const base = Date.now();
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(base - i * 86400000);
+        const v = 35 + Math.sin(i * 0.3) * 20 + (Math.random() - 0.5) * 10;
+        h.push({ date: d.toISOString().slice(0, 10), value: Math.round(Math.max(5, Math.min(95, v))), classification: v > 55 ? "Greed" : v > 45 ? "Neutral" : "Fear" });
+      }
+      return h;
+    })(),
+    trending: [
+      { name: "Bitcoin", symbol: "BTC", market_cap_rank: 1, score: 0 },
+      { name: "Ethereum", symbol: "ETH", market_cap_rank: 2, score: 1 },
+      { name: "Solana", symbol: "SOL", market_cap_rank: 5, score: 2 },
+      { name: "Pepe", symbol: "PEPE", market_cap_rank: 25, score: 3 },
+      { name: "Dogecoin", symbol: "DOGE", market_cap_rank: 8, score: 4 },
+      { name: "SUI", symbol: "SUI", market_cap_rank: 15, score: 5 },
+      { name: "Chainlink", symbol: "LINK", market_cap_rank: 12, score: 6 },
+    ]
+  },
   finnhub: [
     { symbol: "AAPL", bullish_pct: 58.2, bearish_pct: 41.8, buzz_score: 1.32, articles_this_week: 245 },
     { symbol: "MSFT", bullish_pct: 62.1, bearish_pct: 37.9, buzz_score: 1.18, articles_this_week: 198 },
@@ -669,7 +687,7 @@ function formatNum(n) {
 // ═══════════════════════════════════════════════
 // 메인 렌더
 // ═══════════════════════════════════════════════
-let gaugeChart, historyChart, socialChart;
+let gaugeChart, historyChart;
 
 function render() {
   // Updated time
@@ -680,7 +698,7 @@ function render() {
   renderGauge();
   renderCNN();
   renderApeWisdom('all-stocks');
-  renderLunarCrush();
+  renderCrypto();
   renderFinnhub();
 }
 
@@ -699,9 +717,9 @@ function renderGauge() {
   const compEl = document.getElementById('gaugeComponents');
   const labels = {
     cnn_fear_greed: '주식 F&G',
-    lunarcrush_social: '크립토 소셜',
-    apewisdom_trend: '커뮤니티',
-    finnhub_news: '뉴스'
+    crypto_fear_greed: '크립토 F&G',
+    community_trend: '커뮤니티',
+    news_sentiment: '뉴스'
   };
   compEl.innerHTML = Object.entries(c.components || {}).map(([k, v]) => `
     <div class="gauge-chip">
@@ -901,87 +919,72 @@ function renderApeWisdom(filter) {
   sendHeight();
 }
 
-// ── LunarCrush ──
-function renderLunarCrush() {
-  const coins = DATA.lunarcrush || [];
-  const container = document.getElementById('coinCards');
+// ── Crypto Sentiment (Alternative.me + CoinGecko) ──
+var cryptoFGChart;
+function renderCrypto() {
+  const crypto = DATA.crypto_sentiment;
+  if (!crypto) return;
 
-  // Filter out coins with errors or no data
-  const validCoins = coins.filter(c => !c.error && (c.sentiment_positive_pct > 0 || c.num_posts > 0));
-
-  if (validCoins.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:13px">LunarCrush 데이터를 불러오지 못했습니다.<br>API 서버 상태를 확인해 주세요.</div>';
-    return;
+  // Fear & Greed 현재값
+  const fgSection = document.getElementById('cryptoFGSection');
+  const fg = crypto.fear_greed;
+  if (fg && fg.value > 0) {
+    const color = getScoreColor(fg.value);
+    fgSection.innerHTML = `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:13px;color:var(--text3);margin-bottom:4px">크립토 Fear & Greed</div>
+        <div class="mono" style="font-size:48px;font-weight:900;color:${color}">${fg.value}</div>
+        <div style="font-size:14px;color:${color};font-weight:600">${getRatingKr(fg.classification) || fg.classification}</div>
+      </div>`;
+  } else {
+    fgSection.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">크립토 F&G 데이터 없음</div>';
   }
 
-  container.innerHTML = validCoins.map(c => {
-    const posPct = parseFloat(c.sentiment_positive_pct) || 0;
-    const negPct = parseFloat(c.sentiment_negative_pct) || 0;
-    const neuPct = parseFloat(c.sentiment_neutral_pct) || 0;
-    const trendIcon = c.trend === 'up' ? '🟢' : c.trend === 'down' ? '🔴' : '🟡';
-    return `
-    <div class="coin-card">
-      <div class="coin-name">${c.symbol} ${trendIcon}</div>
-      <div style="margin:8px 0">
-        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden">
-          <div style="width:${posPct}%;background:var(--green)"></div>
-          <div style="width:${neuPct}%;background:var(--text3)"></div>
-          <div style="width:${negPct}%;background:var(--red)"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px">
-          <span style="color:var(--green);font-size:10px">${posPct}%</span>
-          <span style="color:var(--red);font-size:10px">${negPct}%</span>
-        </div>
-      </div>
-      <div class="coin-stat">게시물 <span class="num">${formatNum(c.num_posts || 0)}</span></div>
-      <div class="coin-stat">참여 <span class="num">${formatNum(c.interactions_24h || 0)}</span></div>
-    </div>`;
-  }).join('');
-
-  // Social comparison chart
-  if (validCoins.length === 0) return;
-  const ctx = document.getElementById('socialChart').getContext('2d');
-  if (socialChart) socialChart.destroy();
-
-  socialChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: validCoins.map(c => c.symbol),
-      datasets: [
-        {
-          label: '긍정',
-          data: validCoins.map(c => parseFloat(c.sentiment_positive_pct) || 0),
-          backgroundColor: 'rgba(34,197,94,0.7)',
-          borderRadius: 4,
-        },
-        {
-          label: '부정',
-          data: validCoins.map(c => parseFloat(c.sentiment_negative_pct) || 0),
-          backgroundColor: 'rgba(239,68,68,0.7)',
-          borderRadius: 4,
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          labels: { color: '#a1a1aa', font: { family: 'Noto Sans KR', size: 11 } }
-        }
+  // F&G 히스토리 차트
+  const history = crypto.fear_greed_history || [];
+  if (history.length > 0) {
+    const ctx = document.getElementById('cryptoFGChart').getContext('2d');
+    if (cryptoFGChart) cryptoFGChart.destroy();
+    cryptoFGChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: history.map(h => h.date).reverse(),
+        datasets: [{
+          data: history.map(h => h.value).reverse(),
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245,158,11,0.08)',
+          borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8,
+        }]
       },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: '#a1a1aa', font: { family: 'JetBrains Mono', size: 11 } }
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { backgroundColor: '#18181b', borderColor: '#27272a', borderWidth: 1,
+            titleFont: { family: 'JetBrains Mono', size: 11 }, bodyFont: { family: 'Noto Sans KR', size: 12 },
+            callbacks: { label: c => `${c.parsed.y} (${c.parsed.y >= 55 ? '탐욕' : c.parsed.y >= 45 ? '중립' : '공포'})` }
+          }
         },
-        y: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#71717a', font: { size: 10 }, callback: v => v + '%' }
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#71717a', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 8 } },
+          y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#71717a', font: { size: 10 } } }
         }
       }
-    }
-  });
+    });
+  }
+
+  // CoinGecko 트렌딩
+  const trending = crypto.trending || [];
+  const trendDiv = document.getElementById('trendingCoins');
+  if (trending.length > 0) {
+    trendDiv.innerHTML = '<table class="ticker-table"><thead><tr><th>#</th><th>코인</th><th>시총 순위</th></tr></thead><tbody>' +
+      trending.map((c, i) => `<tr>
+        <td><span class="rank-badge ${i < 3 ? 'top3' : ''}">${i + 1}</span></td>
+        <td><span class="ticker-symbol">${c.symbol}</span><br><span class="ticker-name">${c.name}</span></td>
+        <td class="mono" style="font-size:13px">${c.market_cap_rank || '-'}</td>
+      </tr>`).join('') + '</tbody></table>';
+  } else {
+    trendDiv.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">CoinGecko 트렌딩 데이터 없음</div>';
+  }
   sendHeight();
 }
 
