@@ -228,7 +228,7 @@
   }
   .chart-container {
     position: relative;
-    height: 220px;
+    height: 280px;
   }
 
   /* ApeWisdom Ticker Table */
@@ -462,7 +462,7 @@
   <div class="fg-grid" id="fgGrid"></div>
   <div class="chart-box">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-      <div class="chart-title" style="margin:0">📈 CNN Fear & Greed 추이</div>
+      <div class="chart-title" style="margin:0">📈 CNN Fear & Greed vs SPY</div>
       <div style="display:flex;gap:4px">
         <button class="period-btn" data-days="30" onclick="setHistoryPeriod(30,this)">1M</button>
         <button class="period-btn" data-days="90" onclick="setHistoryPeriod(90,this)">3M</button>
@@ -648,6 +648,7 @@ const SAMPLE_DATA = {
 // 데이터 로드
 // ═══════════════════════════════════════════════
 let DATA = SAMPLE_DATA;
+let SPY_DATA = [];
 
 async function loadData() {
   try {
@@ -657,6 +658,15 @@ async function loadData() {
       if (json.cnn_fear_greed) DATA = json;
     }
   } catch (e) { /* 샘플 데이터 사용 */ }
+
+  // SPY 데이터 로드
+  try {
+    const resp = await fetch('data/spy.json');
+    if (resp.ok) {
+      SPY_DATA = await resp.json();
+    }
+  } catch (e) { /* SPY 데이터 없으면 무시 */ }
+
   render();
 }
 
@@ -833,54 +843,107 @@ function renderHistoryChart(days) {
     history = history.slice(-days);
   }
 
+  // Match SPY data to F&G dates
+  const spyMap = {};
+  SPY_DATA.forEach(s => { spyMap[s.date] = s.close; });
+  const spyValues = history.map(h => spyMap[h.date] || null);
+  const hasSPY = spyValues.some(v => v !== null);
+
   const ctx = document.getElementById('fgHistoryChart').getContext('2d');
   if (historyChart) historyChart.destroy();
 
   const dates = history.map(h => h.date);
-  const values = history.map(h => h.y);
+  const fgValues = history.map(h => h.y);
+
+  const datasets = [{
+    label: 'Fear & Greed',
+    data: fgValues,
+    borderColor: '#00d4aa',
+    backgroundColor: 'rgba(0,212,170,0.08)',
+    borderWidth: 2,
+    fill: true,
+    tension: 0.3,
+    pointRadius: 0,
+    pointHitRadius: 8,
+    yAxisID: 'y',
+  }];
+
+  if (hasSPY) {
+    datasets.push({
+      label: 'SPY',
+      data: spyValues,
+      borderColor: '#f59e0b',
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      borderDash: [],
+      fill: false,
+      tension: 0.3,
+      pointRadius: 0,
+      pointHitRadius: 8,
+      yAxisID: 'y1',
+    });
+  }
+
+  const scales = {
+    x: {
+      grid: { color: 'rgba(255,255,255,0.04)' },
+      ticks: { color: '#71717a', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 8 }
+    },
+    y: {
+      position: 'left',
+      min: 0, max: 100,
+      grid: { color: 'rgba(255,255,255,0.04)' },
+      ticks: { color: '#00d4aa', font: { size: 10, family: 'JetBrains Mono' } },
+      title: { display: true, text: 'Fear & Greed', color: '#00d4aa', font: { size: 10 } }
+    }
+  };
+
+  if (hasSPY) {
+    const validSpy = spyValues.filter(v => v !== null);
+    const spyMin = Math.min(...validSpy);
+    const spyMax = Math.max(...validSpy);
+    const padding = (spyMax - spyMin) * 0.05;
+    scales.y1 = {
+      position: 'right',
+      min: Math.floor(spyMin - padding),
+      max: Math.ceil(spyMax + padding),
+      grid: { display: false },
+      ticks: { color: '#f59e0b', font: { size: 10, family: 'JetBrains Mono' }, callback: v => '$' + v },
+      title: { display: true, text: 'SPY', color: '#f59e0b', font: { size: 10 } }
+    };
+  }
 
   historyChart = new Chart(ctx, {
     type: 'line',
-    data: {
-      labels: dates,
-      datasets: [{
-        data: values,
-        borderColor: '#00d4aa',
-        backgroundColor: 'rgba(0,212,170,0.08)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.3,
-        pointRadius: 0,
-        pointHitRadius: 8,
-      }]
-    },
+    data: { labels: dates, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: hasSPY,
+          labels: { color: '#a1a1aa', font: { family: 'Noto Sans KR', size: 11 }, usePointStyle: true, pointStyle: 'line' }
+        },
         tooltip: {
           backgroundColor: '#18181b',
           borderColor: '#27272a',
           borderWidth: 1,
           titleFont: { family: 'JetBrains Mono', size: 11 },
-          bodyFont: { family: 'Noto Sans KR', size: 12 },
+          bodyFont: { family: 'JetBrains Mono', size: 12 },
           callbacks: {
-            label: c => `${c.parsed.y} (${c.parsed.y >= 75 ? '탐욕' : c.parsed.y >= 45 ? '중립' : '공포'})`
+            label: function(c) {
+              if (c.datasetIndex === 0) {
+                const v = c.parsed.y;
+                return `F&G: ${v} (${v >= 75 ? '탐욕' : v >= 45 ? '중립' : '공포'})`;
+              } else {
+                return `SPY: $${c.parsed.y}`;
+              }
+            }
           }
         }
       },
-      scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#71717a', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 8 }
-        },
-        y: {
-          min: 0, max: 100,
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#71717a', font: { size: 10, family: 'JetBrains Mono' } }
-        }
-      }
+      scales
     }
   });
   sendHeight();
