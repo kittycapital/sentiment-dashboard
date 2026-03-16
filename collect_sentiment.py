@@ -5,7 +5,7 @@ HerdVibe 종합 센티먼트 수집기 v3
 """
 
 import json, os, sys, time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import requests
 
 DATA_DIR = os.environ.get("DATA_DIR", "data")
@@ -21,6 +21,109 @@ def safe_int(val):
 def safe_float(val, default=0):
     try: return float(val) if val is not None else default
     except (ValueError, TypeError): return default
+
+
+# ──────────────────────────────────────────────
+# 0. SPY 데이터 업데이트 (yfinance)
+# ──────────────────────────────────────────────
+def update_spy_data():
+    """기존 SPY.csv에 최신 데이터 추가"""
+    print("[0/4] SPY 데이터 업데이트 중...")
+    csv_path = os.path.join(DATA_DIR, "SPY.csv")
+
+    try:
+        import yfinance as yf
+    except ImportError:
+        print("   ⚠️ yfinance 미설치 — pip install yfinance")
+        return
+
+    # 기존 CSV에서 마지막 날짜 확인
+    last_date = None
+    if os.path.exists(csv_path):
+        try:
+            with open(csv_path, "r") as f:
+                lines = f.readlines()
+                if len(lines) > 1:
+                    last_line = lines[-1].strip()
+                    last_date = last_line.split(",")[0]
+                    print(f"   기존 데이터 마지막: {last_date} ({len(lines)-1}일)")
+        except Exception:
+            pass
+
+    # 시작 날짜 결정
+    if last_date:
+        from datetime import datetime as dt
+        start = (dt.strptime(last_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    else:
+        start = "1993-01-29"
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if start >= today:
+        print(f"   ✅ SPY 이미 최신 ({last_date})")
+        return
+
+    print(f"   {start} ~ {today} 다운로드 중...")
+    try:
+        df = yf.download("SPY", start=start, end=today, progress=False)
+        if df.empty:
+            print("   ⚠️ 새 데이터 없음")
+            return
+
+        # 컬럼 정리 — yfinance 버전에 따라 MultiIndex일 수 있음
+        if hasattr(df.columns, 'droplevel'):
+            try:
+                df.columns = df.columns.droplevel(1)
+            except Exception:
+                pass
+
+        # 기존 파일에 append
+        new_rows = []
+        for idx, row in df.iterrows():
+            date_str = idx.strftime("%Y-%m-%d") if hasattr(idx, 'strftime') else str(idx)[:10]
+            close = round(float(row.get("Close", row.iloc[0])), 2)
+            high = round(float(row.get("High", row.iloc[1])), 2)
+            low = round(float(row.get("Low", row.iloc[2])), 2)
+            opn = round(float(row.get("Open", row.iloc[3])), 2)
+            vol = int(row.get("Volume", row.iloc[4])) if not None else 0
+            new_rows.append(f"{date_str},{close},{high},{low},{opn},{vol}")
+
+        if new_rows:
+            if not os.path.exists(csv_path):
+                with open(csv_path, "w") as f:
+                    f.write("Date,Close,High,Low,Open,Volume\n")
+            with open(csv_path, "a") as f:
+                f.write("\n".join(new_rows) + "\n")
+            print(f"   ✅ SPY +{len(new_rows)}일 추가 (마지막: {new_rows[-1].split(',')[0]})")
+        else:
+            print("   ⚠️ 새 데이터 없음")
+
+    except Exception as e:
+        print(f"   ❌ SPY 업데이트 실패: {e}")
+
+
+# ──────────────────────────────────────────────
+# SPY.csv → JSON 변환 (대시보드용)
+# ──────────────────────────────────────────────
+def convert_spy_to_json():
+    """SPY.csv를 대시보드에서 쓸 수 있는 JSON으로 변환"""
+    csv_path = os.path.join(DATA_DIR, "SPY.csv")
+    json_path = os.path.join(DATA_DIR, "spy.json")
+
+    if not os.path.exists(csv_path):
+        print("   ⚠️ SPY.csv 없음")
+        return
+
+    rows = []
+    with open(csv_path, "r") as f:
+        header = f.readline()
+        for line in f:
+            parts = line.strip().split(",")
+            if len(parts) >= 2:
+                rows.append({"date": parts[0], "close": round(safe_float(parts[1]), 2)})
+
+    with open(json_path, "w") as f:
+        json.dump(rows, f)
+    print(f"   ✅ spy.json 저장 ({len(rows)}일)")
 
 
 # ──────────────────────────────────────────────
@@ -292,6 +395,9 @@ def main():
     print(f"⏰ {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 50)
 
+    update_spy_data()
+    convert_spy_to_json()
+    time.sleep(1)
     cnn = fetch_cnn_fear_greed(); time.sleep(1)
     apewisdom = fetch_apewisdom(); time.sleep(1)
     crypto = fetch_crypto_sentiment(); time.sleep(1)
