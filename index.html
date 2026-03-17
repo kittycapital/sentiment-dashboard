@@ -141,6 +141,10 @@
     justify-content: center;
   }
   .tabs::-webkit-scrollbar { display: none; }
+  @media (max-width:639px) {
+    .tabs { justify-content: flex-start; padding: 0 12px; }
+    .tab { padding: 10px 12px; font-size: 12px; }
+  }
   .tab {
     padding: 12px 16px;
     font-size: 13px;
@@ -432,7 +436,7 @@
 <body>
 
 <div class="header">
-  <h1>📊 <span>HerdVibe</span> 종합 센티먼트</h1>
+  <h1><span>HerdVibe</span> 종합 센티먼트</h1>
   <div class="subtitle">무료 데이터만으로 시장 심리를 한눈에</div>
   <div class="updated" id="updatedAt">마지막 업데이트: <span class="mono">--</span></div>
 </div>
@@ -451,10 +455,10 @@
 
 <!-- Tabs -->
 <div class="tabs">
-  <div class="tab active" data-tab="cnn">🏛️ 주식 F&G</div>
-  <div class="tab" data-tab="apewisdom">🔥 커뮤니티</div>
-  <div class="tab" data-tab="crypto">🪙 크립토 센티먼트</div>
-  <div class="tab" data-tab="finnhub">📰 뉴스 센티먼트</div>
+  <div class="tab active" data-tab="cnn">주식 F&G</div>
+  <div class="tab" data-tab="apewisdom">커뮤니티</div>
+  <div class="tab" data-tab="crypto">크립토 센티먼트</div>
+  <div class="tab" data-tab="finnhub">뉴스 센티먼트</div>
 </div>
 
 <!-- Panel: CNN Fear & Greed -->
@@ -462,7 +466,7 @@
   <div class="fg-grid" id="fgGrid"></div>
   <div class="chart-box">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-      <div class="chart-title" style="margin:0">📈 CNN Fear & Greed vs SPY</div>
+      <div class="chart-title" style="margin:0">CNN Fear & Greed vs SPY</div>
       <div style="display:flex;gap:4px">
         <button class="period-btn" data-days="30" onclick="setHistoryPeriod(30,this)">1M</button>
         <button class="period-btn" data-days="90" onclick="setHistoryPeriod(90,this)">3M</button>
@@ -480,8 +484,8 @@
 <!-- Panel: ApeWisdom -->
 <div class="panel" id="panel-apewisdom">
   <div class="ticker-header">
-    <div class="ticker-filter active" data-filter="all-stocks">📈 주식</div>
-    <div class="ticker-filter" data-filter="all-crypto">🪙 크립토</div>
+    <div class="ticker-filter active" data-filter="all-stocks">주식</div>
+    <div class="ticker-filter" data-filter="all-crypto">크립토</div>
   </div>
   <table class="ticker-table" id="tickerTable">
     <thead>
@@ -500,13 +504,13 @@
 <div class="panel" id="panel-crypto">
   <div id="cryptoFGSection"></div>
   <div class="chart-box">
-    <div class="chart-title">🪙 크립토 Fear & Greed 추이 (30일)</div>
+    <div class="chart-title">크립토 Fear & Greed 추이 (30일)</div>
     <div class="chart-container">
       <canvas id="cryptoFGChart"></canvas>
     </div>
   </div>
   <div style="margin-top:16px">
-    <div class="chart-title" style="margin-bottom:12px">🔥 CoinGecko 트렌딩 코인</div>
+    <div class="chart-title" style="margin-bottom:12px">CoinGecko 트렌딩 코인</div>
     <div id="trendingCoins"></div>
   </div>
 </div>
