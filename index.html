@@ -89,6 +89,7 @@
     position: relative;
     width: 260px;
     height: 150px;
+    margin-bottom: 10px;
   }
   .gauge-canvas { width: 260px; height: 150px; }
   .gauge-value {
@@ -111,9 +112,11 @@
   .gauge-components {
     display: flex;
     gap: 12px;
-    margin-top: 20px;
+    margin-top: 36px;
     flex-wrap: wrap;
     justify-content: center;
+    position: relative;
+    z-index: 2;
   }
   .gauge-chip {
     background: var(--surface);
