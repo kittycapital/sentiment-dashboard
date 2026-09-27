@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-09-26T11:05:17Z",
+  "updated_at": "2026-09-27T11:44:09Z",
   "composite": {
-    "score": 58.3,
+    "score": 54.5,
     "rating": "중립",
     "components": {
       "cnn_fear_greed": 37.0,
-      "crypto_fear_greed": 74.0,
-      "community_trend": 40,
-      "news_sentiment": 94.2
+      "crypto_fear_greed": 70.0,
+      "community_trend": 20,
+      "news_sentiment": 100
     },
     "weights": {
       "cnn_fear_greed": 0.35,
@@ -1625,181 +1625,181 @@
         "rank": 1,
         "ticker": "SPY",
         "name": "SPDR S&amp;P 500 ETF Trust",
-        "mentions": 239,
-        "upvotes": 863,
-        "rank_24h_ago": 2,
-        "mentions_24h_ago": 251
+        "mentions": 45,
+        "upvotes": 99,
+        "rank_24h_ago": 1,
+        "mentions_24h_ago": 235
       },
       {
         "rank": 2,
-        "ticker": "MU",
-        "name": "Micron Technology",
-        "mentions": 146,
-        "upvotes": 416,
-        "rank_24h_ago": 3,
-        "mentions_24h_ago": 115
+        "ticker": "VOO",
+        "name": "Vanguard S&amp;P 500 ETF",
+        "mentions": 36,
+        "upvotes": 542,
+        "rank_24h_ago": 12,
+        "mentions_24h_ago": 30
       },
       {
         "rank": 3,
-        "ticker": "META",
-        "name": "Meta Platforms (Facebook)",
-        "mentions": 123,
-        "upvotes": 261,
-        "rank_24h_ago": 1,
-        "mentions_24h_ago": 309
+        "ticker": "MU",
+        "name": "Micron Technology",
+        "mentions": 34,
+        "upvotes": 86,
+        "rank_24h_ago": 2,
+        "mentions_24h_ago": 144
       },
       {
         "rank": 4,
-        "ticker": "MSFT",
-        "name": "Microsoft",
-        "mentions": 82,
-        "upvotes": 192,
-        "rank_24h_ago": 19,
-        "mentions_24h_ago": 24
+        "ticker": "DTE",
+        "name": "DTE Energy",
+        "mentions": 22,
+        "upvotes": 48,
+        "rank_24h_ago": 6,
+        "mentions_24h_ago": 65
       },
       {
         "rank": 5,
-        "ticker": "DTE",
-        "name": "DTE Energy",
-        "mentions": 65,
-        "upvotes": 353,
-        "rank_24h_ago": 9,
-        "mentions_24h_ago": 55
+        "ticker": "MSFT",
+        "name": "Microsoft",
+        "mentions": 18,
+        "upvotes": 185,
+        "rank_24h_ago": 4,
+        "mentions_24h_ago": 82
       },
       {
         "rank": 6,
         "ticker": "QQQ",
         "name": "Invesco QQQ ETF",
-        "mentions": 63,
-        "upvotes": 127,
-        "rank_24h_ago": 6,
-        "mentions_24h_ago": 68
+        "mentions": 16,
+        "upvotes": 40,
+        "rank_24h_ago": 5,
+        "mentions_24h_ago": 62
       },
       {
         "rank": 7,
         "ticker": "AMD",
         "name": "AMD",
-        "mentions": 49,
-        "upvotes": 99,
-        "rank_24h_ago": 5,
-        "mentions_24h_ago": 75
-      },
-      {
-        "rank": 8,
-        "ticker": "TSLA",
-        "name": "Tesla",
-        "mentions": 48,
-        "upvotes": 86,
-        "rank_24h_ago": 16,
-        "mentions_24h_ago": 27
-      },
-      {
-        "rank": 9,
-        "ticker": "NVDA",
-        "name": "NVIDIA",
-        "mentions": 43,
-        "upvotes": 116,
-        "rank_24h_ago": 11,
-        "mentions_24h_ago": 53
-      },
-      {
-        "rank": 10,
-        "ticker": "SNDK",
-        "name": "Sandisk",
-        "mentions": 38,
-        "upvotes": 95,
+        "mentions": 12,
+        "upvotes": 46,
         "rank_24h_ago": 7,
-        "mentions_24h_ago": 65
-      },
-      {
-        "rank": 11,
-        "ticker": "GLND",
-        "name": "Greenland Energy Company",
-        "mentions": 33,
-        "upvotes": 91,
-        "rank_24h_ago": 31,
-        "mentions_24h_ago": 18
-      },
-      {
-        "rank": 12,
-        "ticker": "VOO",
-        "name": "Vanguard S&amp;P 500 ETF",
-        "mentions": 30,
-        "upvotes": 431,
-        "rank_24h_ago": 27,
-        "mentions_24h_ago": 18
-      },
-      {
-        "rank": 13,
-        "ticker": "GOOG",
-        "name": "Alphabet (Google)",
-        "mentions": 26,
-        "upvotes": 41,
-        "rank_24h_ago": 14,
-        "mentions_24h_ago": 34
-      },
-      {
-        "rank": 14,
-        "ticker": "TLT",
-        "name": "BlackRock Institutional Trust Company N.A. - BTC iShares 20+ Year Trea",
-        "mentions": 26,
-        "upvotes": 51,
-        "rank_24h_ago": 12,
         "mentions_24h_ago": 47
       },
       {
-        "rank": 15,
-        "ticker": "NBIS",
-        "name": "Nebius Group",
-        "mentions": 20,
-        "upvotes": 88,
-        "rank_24h_ago": 4,
-        "mentions_24h_ago": 87
+        "rank": 8,
+        "ticker": "BE",
+        "name": "Bloom Energy",
+        "mentions": 12,
+        "upvotes": 62,
+        "rank_24h_ago": 25,
+        "mentions_24h_ago": 14
       },
       {
-        "rank": 16,
-        "ticker": "AAPL",
-        "name": "Apple",
-        "mentions": 19,
-        "upvotes": 55,
-        "rank_24h_ago": 30,
-        "mentions_24h_ago": 18
-      },
-      {
-        "rank": 17,
-        "ticker": "AMZN",
-        "name": "Amazon",
-        "mentions": 19,
-        "upvotes": 67,
-        "rank_24h_ago": 21,
-        "mentions_24h_ago": 23
-      },
-      {
-        "rank": 18,
-        "ticker": "VTI",
-        "name": "Vanguard Total Stock Market ETF",
-        "mentions": 18,
-        "upvotes": 151,
-        "rank_24h_ago": 556,
+        "rank": 9,
+        "ticker": "SGOV",
+        "name": "iShares Trust - iShares 0-3 Month Treasury Bond ETF",
+        "mentions": 12,
+        "upvotes": 38,
+        "rank_24h_ago": 577,
         "mentions_24h_ago": 1
       },
       {
+        "rank": 10,
+        "ticker": "META",
+        "name": "Meta Platforms (Facebook)",
+        "mentions": 12,
+        "upvotes": 95,
+        "rank_24h_ago": 3,
+        "mentions_24h_ago": 123
+      },
+      {
+        "rank": 11,
+        "ticker": "GOOG",
+        "name": "Alphabet (Google)",
+        "mentions": 10,
+        "upvotes": 22,
+        "rank_24h_ago": 14,
+        "mentions_24h_ago": 26
+      },
+      {
+        "rank": 12,
+        "ticker": "TSLA",
+        "name": "Tesla",
+        "mentions": 10,
+        "upvotes": 30,
+        "rank_24h_ago": 8,
+        "mentions_24h_ago": 48
+      },
+      {
+        "rank": 13,
+        "ticker": "SPCX",
+        "name": "SpaceX",
+        "mentions": 9,
+        "upvotes": 20,
+        "rank_24h_ago": 39,
+        "mentions_24h_ago": 12
+      },
+      {
+        "rank": 14,
+        "ticker": "SNDK",
+        "name": "Sandisk",
+        "mentions": 9,
+        "upvotes": 21,
+        "rank_24h_ago": 10,
+        "mentions_24h_ago": 38
+      },
+      {
+        "rank": 15,
+        "ticker": "TP",
+        "name": "Ticketplus",
+        "mentions": 9,
+        "upvotes": 57,
+        "rank_24h_ago": 79,
+        "mentions_24h_ago": 5
+      },
+      {
+        "rank": 16,
+        "ticker": "NVDA",
+        "name": "NVIDIA",
+        "mentions": 8,
+        "upvotes": 21,
+        "rank_24h_ago": 9,
+        "mentions_24h_ago": 43
+      },
+      {
+        "rank": 17,
+        "ticker": "NKE",
+        "name": "Nike",
+        "mentions": 8,
+        "upvotes": 32,
+        "rank_24h_ago": 20,
+        "mentions_24h_ago": 13
+      },
+      {
+        "rank": 18,
+        "ticker": "VXUS",
+        "name": "Vanguard Group, Inc. - Vanguard Total International Stock ETF",
+        "mentions": 8,
+        "upvotes": 80,
+        "rank_24h_ago": 26,
+        "mentions_24h_ago": 17
+      },
+      {
         "rank": 19,
-        "ticker": "API",
-        "name": "Agora.io",
-        "mentions": 18,
-        "upvotes": 66,
-        "rank_24h_ago": 57,
-        "mentions_24h_ago": 7
+        "ticker": "ALL",
+        "name": "Allstate",
+        "mentions": 7,
+        "upvotes": 58,
+        "rank_24h_ago": 48,
+        "mentions_24h_ago": 8
       },
       {
         "rank": 20,
-        "ticker": "RDDT",
-        "name": "Reddit",
-        "mentions": 18,
-        "upvotes": 35,
-        "rank_24h_ago": 24,
-        "mentions_24h_ago": 23
+        "ticker": "ES",
+        "name": "Eversource Energy",
+        "mentions": 7,
+        "upvotes": 11,
+        "rank_24h_ago": 55,
+        "mentions_24h_ago": 6
       }
     ],
     "all-crypto": [
@@ -1808,90 +1808,90 @@
         "ticker": "BTC",
         "name": "Bitcoin",
         "mentions": 80,
-        "upvotes": 2635,
+        "upvotes": 354,
         "rank_24h_ago": 1,
-        "mentions_24h_ago": 87
+        "mentions_24h_ago": 80
       },
       {
         "rank": 2,
         "ticker": "ETH",
         "name": "Ethereum",
-        "mentions": 25,
-        "upvotes": 240,
+        "mentions": 16,
+        "upvotes": 60,
         "rank_24h_ago": 2,
-        "mentions_24h_ago": 17
+        "mentions_24h_ago": 25
       },
       {
         "rank": 3,
-        "ticker": "USDT",
-        "name": "Tether",
+        "ticker": "QNT",
+        "name": "Quant",
         "mentions": 7,
-        "upvotes": 18,
-        "rank_24h_ago": 9,
-        "mentions_24h_ago": 3
+        "upvotes": 10,
+        "rank_24h_ago": 52,
+        "mentions_24h_ago": 1
       },
       {
         "rank": 4,
-        "ticker": "USDC",
-        "name": "USD Coin",
+        "ticker": "LTC",
+        "name": "Litecoin",
         "mentions": 5,
-        "upvotes": 8,
-        "rank_24h_ago": 10,
-        "mentions_24h_ago": 3
+        "upvotes": 4,
+        "rank_24h_ago": 73,
+        "mentions_24h_ago": 1
       },
       {
         "rank": 5,
-        "ticker": "ES",
-        "name": "Era Swap",
-        "mentions": 2,
-        "upvotes": 1,
-        "rank_24h_ago": 59,
-        "mentions_24h_ago": 0
+        "ticker": "DEX",
+        "name": "DEX",
+        "mentions": 3,
+        "upvotes": 5,
+        "rank_24h_ago": 93,
+        "mentions_24h_ago": 1
       },
       {
         "rank": 6,
-        "ticker": "WETH",
-        "name": "WETH",
-        "mentions": 2,
-        "upvotes": 66,
-        "rank_24h_ago": 0,
-        "mentions_24h_ago": 0
+        "ticker": "SOL",
+        "name": "Solana",
+        "mentions": 3,
+        "upvotes": 4,
+        "rank_24h_ago": 63,
+        "mentions_24h_ago": 1
       },
       {
         "rank": 7,
-        "ticker": "SHA",
-        "name": "Safe Haven",
+        "ticker": "ZEC",
+        "name": "Zcash",
         "mentions": 2,
-        "upvotes": 17,
-        "rank_24h_ago": 0,
+        "upvotes": 2,
+        "rank_24h_ago": 68,
         "mentions_24h_ago": 0
       },
       {
         "rank": 8,
-        "ticker": "LINK",
-        "name": "Chainlink",
+        "ticker": "GPT",
+        "name": "GoPower",
         "mentions": 2,
-        "upvotes": 4,
-        "rank_24h_ago": 16,
+        "upvotes": 13,
+        "rank_24h_ago": 23,
         "mentions_24h_ago": 1
       },
       {
         "rank": 9,
-        "ticker": "BCH",
-        "name": "Bitcoin Cash",
+        "ticker": "XMR",
+        "name": "Monero",
         "mentions": 2,
-        "upvotes": 4,
-        "rank_24h_ago": 7,
-        "mentions_24h_ago": 2
+        "upvotes": 3,
+        "rank_24h_ago": 70,
+        "mentions_24h_ago": 1
       },
       {
         "rank": 10,
-        "ticker": "APR",
-        "name": "APR Coin",
+        "ticker": "LST",
+        "name": "LuckySevenToken",
         "mentions": 1,
-        "upvotes": 1,
-        "rank_24h_ago": 76,
-        "mentions_24h_ago": 0
+        "upvotes": 2,
+        "rank_24h_ago": 19,
+        "mentions_24h_ago": 1
       },
       {
         "rank": 11,
@@ -1899,171 +1899,176 @@
         "name": "Lukki Operating Token",
         "mentions": 1,
         "upvotes": 9,
-        "rank_24h_ago": 90,
+        "rank_24h_ago": 50,
         "mentions_24h_ago": 1
       },
       {
         "rank": 12,
+        "ticker": "OUR",
+        "name": "Our Pay",
+        "mentions": 1,
+        "upvotes": 0,
+        "rank_24h_ago": 0,
+        "mentions_24h_ago": 0
+      },
+      {
+        "rank": 13,
         "ticker": "BUT",
         "name": "BitUP Token",
         "mentions": 1,
         "upvotes": 21,
-        "rank_24h_ago": 89,
-        "mentions_24h_ago": 1
-      },
-      {
-        "rank": 13,
-        "ticker": "PDF",
-        "name": "Port of DeFi Network",
-        "mentions": 1,
-        "upvotes": 27,
-        "rank_24h_ago": 88,
+        "rank_24h_ago": 51,
         "mentions_24h_ago": 1
       },
       {
         "rank": 14,
-        "ticker": "IDK",
-        "name": "IDK",
+        "ticker": "PDF",
+        "name": "Port of DeFi Network",
         "mentions": 1,
         "upvotes": 1,
-        "rank_24h_ago": 87,
-        "mentions_24h_ago": 0
+        "rank_24h_ago": 41,
+        "mentions_24h_ago": 1
       },
       {
         "rank": 15,
-        "ticker": "DEC",
-        "name": "Decentr",
+        "ticker": "ME",
+        "name": "All.me",
         "mentions": 1,
-        "upvotes": 0,
-        "rank_24h_ago": 86,
-        "mentions_24h_ago": 1
+        "upvotes": 1,
+        "rank_24h_ago": 0,
+        "mentions_24h_ago": 0
       },
       {
         "rank": 16,
-        "ticker": "TSLA",
-        "name": "Tessla Coin",
-        "mentions": 1,
-        "upvotes": 1,
-        "rank_24h_ago": 85,
-        "mentions_24h_ago": 1
-      },
-      {
-        "rank": 17,
         "ticker": "BUIDL",
         "name": "DFOhub",
         "mentions": 1,
         "upvotes": 1,
-        "rank_24h_ago": 84,
+        "rank_24h_ago": 14,
         "mentions_24h_ago": 1
       },
       {
+        "rank": 17,
+        "ticker": "KNOW",
+        "name": "KNOW",
+        "mentions": 1,
+        "upvotes": 1,
+        "rank_24h_ago": 13,
+        "mentions_24h_ago": 0
+      },
+      {
         "rank": 18,
-        "ticker": "LTC",
-        "name": "Litecoin",
+        "ticker": "WETH",
+        "name": "WETH",
         "mentions": 1,
         "upvotes": 2,
-        "rank_24h_ago": 3,
-        "mentions_24h_ago": 3
+        "rank_24h_ago": 7,
+        "mentions_24h_ago": 2
       },
       {
         "rank": 19,
-        "ticker": "AAA",
-        "name": "Abulaba",
+        "ticker": "UP",
+        "name": "UpToken",
         "mentions": 1,
-        "upvotes": 1,
-        "rank_24h_ago": 79,
+        "upvotes": 2,
+        "rank_24h_ago": 11,
         "mentions_24h_ago": 1
       },
       {
         "rank": 20,
-        "ticker": "IRA",
-        "name": "Diligence",
+        "ticker": "CPU",
+        "name": "CPUchain",
         "mentions": 1,
-        "upvotes": 0,
-        "rank_24h_ago": 78,
+        "upvotes": 11,
+        "rank_24h_ago": 22,
         "mentions_24h_ago": 1
       }
     ]
   },
   "crypto_sentiment": {
     "fear_greed": {
-      "value": 74,
+      "value": 70,
       "classification": "Greed",
-      "timestamp": "1790380800"
+      "timestamp": "1790467200"
     },
     "trending": [
       {
-        "name": "Super Inu",
-        "symbol": "SI",
-        "market_cap_rank": 927,
+        "name": "Quant",
+        "symbol": "QNT",
+        "market_cap_rank": 47,
         "score": 0,
-        "price_btc": 2.259976702987193e-07
-      },
-      {
-        "name": "Edel",
-        "symbol": "EDEL",
-        "market_cap_rank": 899,
-        "score": 1,
-        "price_btc": 3.5725913183562917e-07
+        "price_btc": 0.001940980362450043
       },
       {
         "name": "Official Trump",
         "symbol": "TRUMP",
-        "market_cap_rank": 103,
+        "market_cap_rank": 104,
+        "score": 1,
+        "price_btc": 2.52123626615038e-05
+      },
+      {
+        "name": "Edel",
+        "symbol": "EDEL",
+        "market_cap_rank": 928,
         "score": 2,
-        "price_btc": 2.553927767672775e-05
+        "price_btc": 3.384557135494269e-07
+      },
+      {
+        "name": "Backpack",
+        "symbol": "BP",
+        "market_cap_rank": 132,
+        "score": 3,
+        "price_btc": 1.824285031073714e-05
       },
       {
         "name": "NEAR Protocol",
         "symbol": "NEAR",
         "market_cap_rank": 22,
-        "score": 3,
-        "price_btc": 5.828551831795333e-05
-      },
-      {
-        "name": "Ethena",
-        "symbol": "ENA",
-        "market_cap_rank": 37,
         "score": 4,
-        "price_btc": 3.371811915616635e-06
-      },
-      {
-        "name": "Ondo",
-        "symbol": "ONDO",
-        "market_cap_rank": 40,
-        "score": 5,
-        "price_btc": 6.6206495680390465e-06
+        "price_btc": 6.126950617259201e-05
       },
       {
         "name": "Sui",
         "symbol": "SUI",
-        "market_cap_rank": 27,
-        "score": 6,
-        "price_btc": 1.4116679044635628e-05
+        "market_cap_rank": 26,
+        "score": 5,
+        "price_btc": 1.4646455411123231e-05
       },
       {
         "name": "Pudgy Penguins",
         "symbol": "PENGU",
-        "market_cap_rank": 98,
-        "score": 7,
-        "price_btc": 1.2149082900272906e-07
-      },
-      {
-        "name": "Aerodrome Finance",
-        "symbol": "AERO",
-        "market_cap_rank": 84,
-        "score": 8,
-        "price_btc": 1.0869732552575614e-05
+        "market_cap_rank": 100,
+        "score": 6,
+        "price_btc": 1.2097058140262435e-07
       },
       {
         "name": "Bittensor",
         "symbol": "TAO",
         "market_cap_rank": 33,
+        "score": 7,
+        "price_btc": 0.003893802361954123
+      },
+      {
+        "name": "Solana",
+        "symbol": "SOL",
+        "market_cap_rank": 7,
+        "score": 8,
+        "price_btc": 0.001460511085537573
+      },
+      {
+        "name": "Worldcoin",
+        "symbol": "WLD",
+        "market_cap_rank": 51,
         "score": 9,
-        "price_btc": 0.0037980636792899628
+        "price_btc": 6.694293437383771e-06
       }
     ],
     "fear_greed_history": [
+      {
+        "date": "2026-09-27",
+        "value": 70,
+        "classification": "Greed"
+      },
       {
         "date": "2026-09-26",
         "value": 74,
@@ -2208,11 +2213,6 @@
         "date": "2026-08-29",
         "value": 68,
         "classification": "Greed"
-      },
-      {
-        "date": "2026-08-28",
-        "value": 73,
-        "classification": "Greed"
       }
     ]
   },
@@ -2220,58 +2220,58 @@
     {
       "symbol": "AAPL",
       "articles_this_week": 245,
-      "bullish_pct": 80.0,
-      "bearish_pct": 20.0,
+      "bullish_pct": 83.8,
+      "bearish_pct": 16.2,
       "buzz_score": 8.17
     },
     {
       "symbol": "MSFT",
-      "articles_this_week": 249,
-      "bullish_pct": 63.6,
-      "bearish_pct": 36.4,
-      "buzz_score": 8.3
+      "articles_this_week": 250,
+      "bullish_pct": 67.7,
+      "bearish_pct": 32.3,
+      "buzz_score": 8.33
     },
     {
       "symbol": "GOOGL",
       "articles_this_week": 248,
-      "bullish_pct": 68.8,
-      "bearish_pct": 31.2,
+      "bullish_pct": 71.8,
+      "bearish_pct": 28.2,
       "buzz_score": 8.27
     },
     {
       "symbol": "AMZN",
-      "articles_this_week": 246,
-      "bullish_pct": 56.7,
-      "bearish_pct": 43.3,
-      "buzz_score": 8.2
+      "articles_this_week": 247,
+      "bullish_pct": 57.7,
+      "bearish_pct": 42.3,
+      "buzz_score": 8.23
     },
     {
       "symbol": "TSLA",
-      "articles_this_week": 245,
-      "bullish_pct": 44.4,
-      "bearish_pct": 55.6,
-      "buzz_score": 8.17
+      "articles_this_week": 247,
+      "bullish_pct": 43.6,
+      "bearish_pct": 56.4,
+      "buzz_score": 8.23
     },
     {
       "symbol": "NVDA",
-      "articles_this_week": 249,
-      "bullish_pct": 70.3,
-      "bearish_pct": 29.7,
-      "buzz_score": 8.3
+      "articles_this_week": 247,
+      "bullish_pct": 78.8,
+      "bearish_pct": 21.2,
+      "buzz_score": 8.23
     },
     {
       "symbol": "META",
-      "articles_this_week": 245,
-      "bullish_pct": 63.6,
-      "bearish_pct": 36.4,
-      "buzz_score": 8.17
+      "articles_this_week": 247,
+      "bullish_pct": 71.7,
+      "bearish_pct": 28.3,
+      "buzz_score": 8.23
     },
     {
       "symbol": "SPY",
-      "articles_this_week": 243,
-      "bullish_pct": 54.9,
-      "bearish_pct": 45.1,
-      "buzz_score": 8.1
+      "articles_this_week": 244,
+      "bullish_pct": 62.3,
+      "bearish_pct": 37.7,
+      "buzz_score": 8.13
     }
   ]
 }
